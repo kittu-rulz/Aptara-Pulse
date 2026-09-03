@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aptara Pulse — HR Calendar Management Studio</title>
+  <meta name="description" content="Offline, non-technical HR Studio for updating Aptara Pulse Training and Engagement Calendar." />
+  
+  <link rel="stylesheet" href="../employee-calendar/assets/css/styles.css" />
+  <link rel="stylesheet" href="assets/css/editor.css" />
+</head>
+<body>
+
+  <!-- Top Navigation & Action Header -->
+  <header class="editor-header" role="banner">
+    <div class="brand-left">
+      <a href="../employee-calendar/index.html" class="btn btn-secondary btn-xs" title="Open live Employee Portal">
+        <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+        <span>Employee Portal</span>
+      </a>
+      
+      <div class="editor-title-block">
+        <h1>Aptara Pulse — Calendar Studio</h1>
+        <p>Offline Monthly Content & Event Manager</p>
+      </div>
+
+      <div class="header-status-badge" id="save-status-badge">
+        <span class="status-dot"></span>
+        <span id="save-status-text">Draft Auto-Saved</span>
+      </div>
+    </div>
+
+    <div class="editor-actions">
+      <button id="btn-open-duplicate-month" class="btn btn-secondary" title="Clone previous month and advance dates">
+        <i data-lucide="calendar-plus" style="width: 15px; height: 15px;"></i>
+        <span>Duplicate Month</span>
+      </button>
+
+      <button id="btn-open-import" class="btn btn-secondary" title="Import existing data file or JSON">
+        <i data-lucide="upload" style="width: 15px; height: 15px;"></i>
+        <span>Import Data</span>
+      </button>
+
+      <button id="btn-open-reset" class="btn btn-danger" title="Reset changes with confirmation">
+        <i data-lucide="rotate-ccw" style="width: 15px; height: 15px;"></i>
+        <span>Reset</span>
+      </button>
+
+      <button id="btn-export-js" class="btn btn-secondary" title="Export replacement calendar-data.js">
+        <i data-lucide="file-code" style="width: 15px; height: 15px;"></i>
+        <span>Export Data.js</span>
+      </button>
+
+      <!-- Prominent Generate Website ZIP Button -->
+      <button id="btn-generate-website-zip" class="btn btn-publish-hero" title="Run pre-publish checklist and download server-ready website package">
+        <i data-lucide="package-check" style="width: 16px; height: 16px;"></i>
+        <span>Generate Website ZIP</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Split-Screen Studio Workspace -->
+  <main class="editor-workspace">
+    
+    <!-- Left Pane: HR Management Controls & Forms -->
+    <section class="editor-pane-left">
+      
+      <!-- Primary Tab Navigation -->
+      <div class="editor-tabs" role="tablist">
+        <button id="tab-btn-events" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-events">
+          <i data-lucide="calendar" style="width: 15px; height: 15px;"></i>
+          <span>Events Manager (<span id="tab-event-count">0</span>)</span>
+        </button>
+        <button id="tab-btn-settings" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-settings">
+          <i data-lucide="sliders" style="width: 15px; height: 15px;"></i>
+          <span>Monthly Portal Settings</span>
+        </button>
+      </div>
+
+      <!-- Tab Panel 1: Events Manager & Event Form -->
+      <div id="panel-events" role="tabpanel" aria-labelledby="tab-btn-events">
+        
+        <!-- Configured Events List & Reorder Section -->
+        <div class="editor-card" style="margin-bottom: 1.25rem;">
+          <div class="editor-card-header">
+            <h2>
+              <i data-lucide="list-ordered" style="width: 17px; height: 17px; color: var(--brand-secondary);"></i>
+              Configured Sessions (<span id="event-list-badge">0</span>)
+            </h2>
+            <button id="btn-add-new-scroll" class="btn btn-primary btn-xs">
+              <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+              Add New Event
+            </button>
+          </div>
+
+          <div id="events-manager-container" class="events-manager-list" role="list">
+            <!-- Rendered dynamically by editor.js -->
+          </div>
+        </div>
+
+        <!-- Add / Edit Event Form Card -->
+        <div class="editor-card" id="event-form-card">
+          <div class="editor-card-header">
+            <h2 id="form-heading-title">
+              <i data-lucide="calendar-plus" style="width: 17px; height: 17px; color: var(--brand-secondary);"></i>
+              <span id="form-mode-label">Add New Event</span>
+            </h2>
+            <button id="btn-cancel-edit" class="btn btn-secondary btn-xs" style="display: none;">
+              <i data-lucide="x" style="width: 13px; height: 13px;"></i>
+              Cancel Edit
+            </button>
+          </div>
+
+          <form id="event-editor-form" novalidate>
+            <input type="hidden" id="event-edit-id" value="" />
+
+            <!-- Event Title -->
+            <div class="form-group">
+              <label for="event-title">Event Title <span class="required-star">*</span></label>
+              <input type="text" id="event-title" placeholder="e.g. Generative AI Prompt Engineering Workshop" required />
+              <div class="field-error-msg" id="err-event-title">Please enter a descriptive event title.</div>
+            </div>
+
+            <!-- Category & Accent Preview -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-category">Category & Track <span class="required-star">*</span></label>
+                <div class="category-select-wrapper">
+                  <span id="category-color-preview" class="category-color-pill" style="background: #145DA0;" title="Automatic category accent"></span>
+                  <select id="event-category" required>
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="event-mode">Delivery Mode</label>
+                <select id="event-mode">
+                  <option value="Virtual">Virtual (MS Teams / Online)</option>
+                  <option value="In-Person">In-Person (Office / Room)</option>
+                  <option value="Hybrid">Hybrid (In-Person + Live Stream)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- All Day Toggle -->
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label class="switch-control">
+                <input type="checkbox" id="event-allday" style="display: none;" />
+                <span class="switch-input"></span>
+                <span style="font-size: 0.825rem; font-weight: 700; color: var(--text-primary);">All-Day Event / Multi-Day Campaign</span>
+              </label>
+            </div>
+
+            <!-- Date Fields -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-start-date">Start Date <span class="required-star">*</span></label>
+                <input type="date" id="event-start-date" required />
+                <div class="field-error-msg" id="err-start-date">Please select a valid start date.</div>
+              </div>
+              <div class="form-group">
+                <label for="event-end-date">End Date</label>
+                <input type="date" id="event-end-date" />
+                <div class="field-error-msg" id="err-end-date">End date cannot be earlier than start date.</div>
+              </div>
+            </div>
+
+            <!-- Time Fields (Hidden if All-Day) -->
+            <div class="form-row" id="time-fields-row">
+              <div class="form-group">
+                <label for="event-start-time">Start Time</label>
+                <input type="time" id="event-start-time" value="10:00" />
+              </div>
+              <div class="form-group">
+                <label for="event-end-time">End Time</label>
+                <input type="time" id="event-end-time" value="11:30" />
+                <div class="field-error-msg" id="err-time-range">End time must be after start time.</div>
+              </div>
+            </div>
+
+            <!-- Location & Instructor -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-location">Location / Venue</label>
+                <input type="text" id="event-location" placeholder="e.g. MS Teams Live / Cafeteria" />
+              </div>
+              <div class="form-group">
+                <label for="event-instructor">Instructor / Host Team</label>
+                <input type="text" id="event-instructor" placeholder="e.g. AI COE / L&D Team" />
+              </div>
+            </div>
+
+            <!-- Target Audience -->
+            <div class="form-group">
+              <label for="event-audience">Target Audience / Department</label>
+              <input type="text" id="event-audience" placeholder="e.g. All Aptara Employees, Tech Leads" />
+            </div>
+
+            <!-- Online URLs -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="event-join-url">Online Meeting Link (MS Teams / Zoom)</label>
+                <input type="url" id="event-join-url" placeholder="https://teams.microsoft.com/..." />
+                <div class="field-error-msg" id="err-join-url">Please enter a valid URL starting with http:// or https://</div>
+              </div>
+              <div class="form-group">
+                <label for="event-reg-url">Registration Form Link (MS Forms)</label>
+                <input type="url" id="event-reg-url" placeholder="https://forms.office.com/..." />
+                <div class="field-error-msg" id="err-reg-url">Please enter a valid URL starting with http:// or https://</div>
+              </div>
+            </div>
+
+            <!-- Featured Highlight Toggle -->
+            <div class="form-group" style="margin-bottom: 1.15rem;">
+              <label class="switch-control">
+                <input type="checkbox" id="event-featured" style="display: none;" />
+                <span class="switch-input"></span>
+                <span style="font-size: 0.825rem; font-weight: 700; color: var(--text-primary);">Feature in "Monthly Highlights" Section</span>
+              </label>
+            </div>
+
+            <!-- Visual Icon Selector -->
+            <div class="form-group">
+              <label>Event Visual Icon</label>
+              <div class="icon-picker-grid" id="icon-picker-grid" role="radiogroup" aria-label="Event icon selection">
+                <!-- Injected dynamically -->
+              </div>
+              <input type="hidden" id="event-selected-icon" value="book-open" />
+            </div>
+
+            <!-- Event Image Alt Text -->
+            <div class="form-group">
+              <label for="event-image-alt">Icon / Image Accessibility Alt Text</label>
+              <input type="text" id="event-image-alt" placeholder="e.g. Workshop training presentation icon" value="Session visual icon" />
+            </div>
+
+            <!-- Short & Full Descriptions -->
+            <div class="form-group">
+              <label for="event-desc">Description & Objectives</label>
+              <textarea id="event-desc" rows="3" placeholder="Overview of learning outcomes, session details, and prerequisites..."></textarea>
+            </div>
+
+            <!-- Search Tags -->
+            <div class="form-group">
+              <label for="event-tags">Search Tags (comma separated)</label>
+              <input type="text" id="event-tags" placeholder="AI, Training, Technical, Upskilling" />
+              <div class="field-help-text">Tags help employees quickly find sessions using search.</div>
+            </div>
+
+            <!-- Form Submission Actions -->
+            <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+              <button type="submit" id="form-submit-btn" class="btn btn-primary" style="flex: 1;">
+                <i data-lucide="check" style="width: 15px; height: 15px;"></i>
+                <span id="form-submit-text">Add Event to Calendar</span>
+              </button>
+              <button type="button" id="form-reset-btn" class="btn btn-secondary">
+                Reset Form
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Tab Panel 2: Monthly Settings Form -->
+      <div id="panel-settings" role="tabpanel" aria-labelledby="tab-btn-settings" style="display: none;">
+        <div class="editor-card">
+          <div class="editor-card-header">
+            <h2>
+              <i data-lucide="sliders" style="width: 17px; height: 17px; color: var(--brand-secondary);"></i>
+              Monthly Portal Configuration
+            </h2>
+          </div>
+
+          <form id="monthly-settings-form">
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="settings-month-name">Target Month <span class="required-star">*</span></label>
+                <select id="settings-month-name">
+                  <option value="January">January</option>
+                  <option value="February">February</option>
+                  <option value="March">March</option>
+                  <option value="April">April</option>
+                  <option value="May">May</option>
+                  <option value="June">June</option>
+                  <option value="July">July</option>
+                  <option value="August">August</option>
+                  <option value="September" selected>September</option>
+                  <option value="October">October</option>
+                  <option value="November">November</option>
+                  <option value="December">December</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="settings-year">Target Year <span class="required-star">*</span></label>
+                <input type="text" id="settings-year" value="2026" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="settings-portal-title">Portal Header Title <span class="required-star">*</span></label>
+              <input type="text" id="settings-portal-title" value="Aptara Pulse — Training, Events & Engagement Calendar" required />
+            </div>
+
+            <div class="form-group">
+              <label for="settings-monthly-message">Monthly Welcome Message</label>
+              <textarea id="settings-monthly-message" rows="3">Welcome to September! Discover this month's curated technical workshops, wellness sessions, global town halls, and engagement challenges designed to help you learn, connect, and celebrate.</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="settings-contact-ld">Learning & Development Contact Email</label>
+              <input type="text" id="settings-contact-ld" value="hr.learning@aptaracorp.com" />
+            </div>
+
+            <div class="form-group">
+              <label for="settings-contact-engagement">Employee Engagement Contact Email</label>
+              <input type="text" id="settings-contact-engagement" value="engagement@aptaracorp.com" />
+            </div>
+
+            <div class="form-group">
+              <label for="settings-contact-phone">Internal Support Extension / Helpline</label>
+              <input type="text" id="settings-contact-phone" value="Employee Support Ext: 4400" />
+            </div>
+
+            <div style="margin-top: 1.25rem;">
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <i data-lucide="save" style="width: 15px; height: 15px;"></i>
+                Save Portal Settings
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Pane: Live Interactive Preview -->
+    <section class="editor-pane-right" aria-label="Live Employee Portal Preview">
+      
+      <!-- Preview Top Toolbar -->
+      <div class="preview-top-toolbar">
+        <div class="preview-title">
+          <span class="status-dot"></span>
+          <span>Live Portal Preview</span>
+        </div>
+
+        <div class="preview-device-toggle" role="group" aria-label="Device preview switcher">
+          <button id="preview-btn-desktop" class="device-btn active" title="Switch to desktop preview">
+            <i data-lucide="monitor" style="width: 13px; height: 13px;"></i>
+            <span>Desktop</span>
+          </button>
+          <button id="preview-btn-mobile" class="device-btn" title="Switch to mobile phone preview (390px)">
+            <i data-lucide="smartphone" style="width: 13px; height: 13px;"></i>
+            <span>Mobile (390px)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview Viewport Frame -->
+      <div id="preview-viewport-wrapper" class="preview-viewport-wrapper">
+        <div class="preview-frame-container" id="preview-frame-container">
+          
+          <!-- Live Preview Content Render Area -->
+          <div id="live-preview-content" style="padding-bottom: 2rem;">
+            <!-- Rendered dynamically by editor.js -->
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal 1: Reset Confirmation -->
+  <div id="modal-reset-confirm" class="editor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="editor-modal-box">
+      <div class="editor-modal-header">
+        <h3 id="reset-modal-title">Reset Calendar Data</h3>
+        <button class="modal-close-btn" data-close-modal="modal-reset-confirm" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+      <div class="editor-modal-body">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Choose how you would like to reset your calendar data:
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <button id="btn-reset-baseline" class="btn btn-secondary" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="refresh-cw" style="width: 16px; height: 16px; color: var(--brand-secondary);"></i>
+            <div style="text-align: left;">
+              <strong style="display: block; font-size: 0.85rem;">Restore September 2026 Baseline</strong>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Restores the original 8 curated corporate events.</span>
+            </div>
+          </button>
+
+          <button id="btn-reset-blank" class="btn btn-danger" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+            <div style="text-align: left;">
+              <strong style="display: block; font-size: 0.85rem;">Clear All to Blank</strong>
+              <span style="font-size: 0.75rem; color: var(--color-danger);">Removes all events to start from a completely clean slate.</span>
+            </div>
+          </button>
+        </div>
+      </div>
+      <div class="editor-modal-footer">
+        <button class="btn btn-secondary" data-close-modal="modal-reset-confirm">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Duplicate Previous Month -->
+  <div id="modal-duplicate-month" class="editor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="dup-modal-title">
+    <div class="editor-modal-box">
+      <div class="editor-modal-header">
+        <h3 id="dup-modal-title">Duplicate Month as New Starting Point</h3>
+        <button class="modal-close-btn" data-close-modal="modal-duplicate-month" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+      <div class="editor-modal-body">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          This will duplicate all current events and automatically advance their calendar dates forward by 1 month to jumpstart your next edition.
+        </p>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dup-new-month">New Target Month</label>
+            <select id="dup-new-month">
+              <option value="January">January</option>
+              <option value="February">February</option>
+              <option value="March">March</option>
+              <option value="April">April</option>
+              <option value="May">May</option>
+              <option value="June">June</option>
+              <option value="July">July</option>
+              <option value="August">August</option>
+              <option value="September">September</option>
+              <option value="October" selected>October</option>
+              <option value="November">November</option>
+              <option value="December">December</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dup-new-year">Year</label>
+            <input type="text" id="dup-new-year" value="2026" />
+          </div>
+        </div>
+      </div>
+      <div class="editor-modal-footer">
+        <button class="btn btn-secondary" data-close-modal="modal-duplicate-month">Cancel</button>
+        <button id="btn-confirm-duplicate-month" class="btn btn-primary">
+          <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+          Duplicate & Advance Dates
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Import Existing Calendar Data -->
+  <div id="modal-import-data" class="editor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-modal-title">
+    <div class="editor-modal-box" style="max-width: 580px;">
+      <div class="editor-modal-header">
+        <h3 id="import-modal-title">Import Calendar Data</h3>
+        <button class="modal-close-btn" data-close-modal="modal-import-data" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+      <div class="editor-modal-body">
+        <div class="form-group">
+          <label>Upload Existing File (`calendar-data.js` or `.json`)</label>
+          <input type="file" id="import-file-uploader" accept=".js,.json" style="padding: 0.4rem;" />
+        </div>
+
+        <div style="text-align: center; font-size: 0.75rem; color: var(--text-muted); margin: 0.75rem 0;">— OR PASTE CONTENT BELOW —</div>
+
+        <div class="form-group">
+          <label for="import-text-area">Paste JSON or `calendar-data.js` text</label>
+          <textarea id="import-text-area" rows="6" placeholder="Paste data here..."></textarea>
+        </div>
+      </div>
+      <div class="editor-modal-footer">
+        <button class="btn btn-secondary" data-close-modal="modal-import-data">Cancel</button>
+        <button id="btn-confirm-import-text" class="btn btn-primary">
+          <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+          Import & Apply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Pre-Publish Checklist Dialog -->
+  <div id="modal-prepublish-checklist" class="editor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="checklist-modal-title">
+    <div class="editor-modal-box" style="max-width: 620px;">
+      <div class="editor-modal-header">
+        <h3 id="checklist-modal-title">
+          <i data-lucide="clipboard-check" style="width: 18px; height: 18px; color: var(--brand-secondary);"></i>
+          Pre-Publish Verification Checklist
+        </h3>
+        <button class="modal-close-btn" data-close-modal="modal-prepublish-checklist" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+      
+      <div class="editor-modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.15rem;">
+          The system has verified your monthly configuration. Ensure all audit items pass before downloading the final web package:
+        </p>
+
+        <div class="checklist-container" id="checklist-items-list">
+          <!-- Populated dynamically by editor.js -->
+        </div>
+
+        <!-- Manual Confirmation for Mobile Review -->
+        <div style="background: #F0F4F8; border: 1px solid #DCE4EC; border-radius: 8px; padding: 0.75rem 0.9rem; margin-top: 0.85rem;">
+          <label class="switch-control">
+            <input type="checkbox" id="check-mobile-reviewed" style="display: none;" />
+            <span class="switch-input"></span>
+            <span style="font-size: 0.825rem; font-weight: 700; color: var(--brand-primary);">I have previewed the calendar layout on mobile (390px)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="editor-modal-footer">
+        <button class="btn btn-secondary" data-close-modal="modal-prepublish-checklist">Cancel</button>
+        <button id="btn-confirm-download-zip" class="btn btn-publish-hero">
+          <i data-lucide="download-cloud" style="width: 15px; height: 15px;"></i>
+          <span>Confirm & Download ZIP</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Post-Publish Success Guide Panel -->
+  <div id="modal-publish-success" class="editor-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+    <div class="editor-modal-box" style="max-width: 640px;">
+      <div class="editor-modal-header">
+        <h3 id="success-modal-title" style="color: #059669;">
+          <i data-lucide="check-circle-2" style="width: 18px; height: 18px;"></i>
+          Website ZIP Package Created
+        </h3>
+        <button class="modal-close-btn" data-close-modal="modal-publish-success" style="background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+          <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+
+      <div class="editor-modal-body">
+        <div class="success-panel-box">
+          <div class="success-icon-badge">
+            <i data-lucide="package" style="width: 28px; height: 28px;"></i>
+          </div>
+          <h4 style="font-size: 1.15rem; font-weight: 800; color: var(--brand-primary); margin-bottom: 0.35rem;" id="success-zip-filename">aptara-pulse-2026-september.zip</h4>
+          <p style="font-size: 0.825rem; color: var(--text-secondary); max-width: 480px; margin: 0 auto 1.5rem auto;">
+            The static website package is downloaded. It is 100% self-contained with no external dependencies and opens directly to <code>index.html</code>.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <h5 style="font-size: 0.85rem; font-weight: 800; color: var(--brand-primary); margin-bottom: 0.6rem;">Next Steps for Web Admin / HR:</h5>
+          
+          <div class="server-guide-step">
+            <span class="step-num">1</span>
+            <div>
+              <strong style="font-size: 0.825rem; color: var(--brand-primary); display: block;">Local Verification</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">Extract the downloaded ZIP into any folder and double-click <code>index.html</code> to verify in Chrome, Edge, or Firefox without needing a web server.</span>
+            </div>
+          </div>
+
+          <div class="server-guide-step">
+            <span class="step-num">2</span>
+            <div>
+              <strong style="font-size: 0.825rem; color: var(--brand-primary); display: block;">Upload to Internal Hosting (IIS, Apache, or Nginx)</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">Copy the extracted files directly into the root intranet directory (e.g. <code>C:\inetpub\wwwroot\pulse\</code> or <code>/var/www/html/pulse/</code>).</span>
+            </div>
+          </div>
+
+          <div class="server-guide-step">
+            <span class="step-num">3</span>
+            <div>
+              <strong style="font-size: 0.825rem; color: var(--brand-primary); display: block;">Broadcast URL to Employees</strong>
+              <span style="font-size: 0.75rem; color: var(--text-secondary);">Share your intranet link (e.g., <code>https://intranet.aptaracorp.com/pulse/</code>). No database, backend services, or security tokens needed.</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid #DCE4EC; border-radius: 6px; padding: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
+          <i data-lucide="info" style="width: 13px; height: 13px; display: inline; vertical-align: -2px; margin-right: 4px; color: var(--brand-secondary);"></i>
+          Includes <code>UPLOAD-INSTRUCTIONS.txt</code> with web server configuration notes.
+        </div>
+      </div>
+
+      <div class="editor-modal-footer">
+        <button class="btn btn-primary" data-close-modal="modal-publish-success">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Local Vendor Scripts -->
+  <script src="assets/vendor/lucide/lucide.min.js"></script>
+  <script src="assets/vendor/jszip/jszip.min.js"></script>
+  <script src="assets/vendor/fuse/fuse.min.js"></script>
+
+  <!-- Baseline Data and Editor Script -->
+  <script src="../employee-calendar/assets/js/calendar-data.js"></script>
+  <script src="assets/js/editor.js"></script>
+</body>
+</html>

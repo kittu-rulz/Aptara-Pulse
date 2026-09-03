@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aptara Pulse — Training, Events & Engagement Calendar</title>
+  <meta name="description" content="Corporate employee training, events, and engagement calendar for Aptara workforce. Stay updated on technical workshops, wellness sessions, and company town halls." />
+  
+  <!-- Local Stylesheet -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+  <!-- 1. Sticky Translucent Navigation -->
+  <header class="site-header" role="banner">
+    <div class="container nav-inner">
+      <a href="#overview" class="brand-block" aria-label="Aptara Pulse Home">
+        <img src="assets/images/Aptara-Logo.svg" alt="Aptara Logo" class="brand-logo-img" />
+        <div class="brand-text">
+          <span class="brand-title">Aptara Pulse</span>
+          <span class="brand-subtitle">Calendar Portal</span>
+        </div>
+      </a>
+
+      <nav role="navigation" aria-label="Main Navigation">
+        <ul class="nav-links">
+          <li><a href="#overview" class="nav-link active"><i data-lucide="layout-dashboard" style="width: 15px; height: 15px;" aria-hidden="true"></i> Overview</a></li>
+          <li><a href="#highlights" class="nav-link"><i data-lucide="sparkles" style="width: 15px; height: 15px;" aria-hidden="true"></i> Highlights</a></li>
+          <li><a href="#calendar" class="nav-link"><i data-lucide="calendar" style="width: 15px; height: 15px;" aria-hidden="true"></i> Calendar</a></li>
+          <li><a href="#contact" class="nav-link"><i data-lucide="headphones" style="width: 15px; height: 15px;" aria-hidden="true"></i> Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="../calendar-editor/index.html" class="btn-nav-editor" title="Open HR Management Studio" aria-label="HR Studio Administration">
+          <i data-lucide="edit-3" style="width: 14px; height: 14px;" aria-hidden="true"></i>
+          <span>HR Studio</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. Compact Navy-to-Blue Hero -->
+  <section class="hero-section" id="hero" aria-labelledby="hero-title">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <i data-lucide="calendar-days" style="width: 14px; height: 14px;" aria-hidden="true"></i>
+          <span id="hero-month-badge">September 2026 Edition</span>
+        </div>
+        <h1 class="hero-title" id="hero-title">Aptara Pulse — Training, Events & Engagement Calendar</h1>
+        <p class="hero-message" id="hero-message">
+          Welcome to September! Discover this month's curated technical workshops, wellness sessions, global town halls, and engagement challenges designed to help you learn, connect, and celebrate.
+        </p>
+        <div class="hero-actions">
+          <a href="#calendar" class="btn-hero-primary" role="button">
+            <i data-lucide="calendar-search" style="width: 17px; height: 17px;" aria-hidden="true"></i>
+            View Calendar
+          </a>
+          <a href="#highlights" class="btn-hero-secondary" role="button">
+            <i data-lucide="sparkles" style="width: 17px; height: 17px;" aria-hidden="true"></i>
+            Explore Highlights
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. "At a Glance" Statistics Cards -->
+  <section class="stats-section" id="overview" aria-label="Summary Statistics">
+    <div class="container">
+      <div class="stats-grid">
+        
+        <!-- Total Events -->
+        <div class="stat-card" data-filter="all" tabindex="0" role="button" aria-label="Filter all sessions" style="--stat-accent: var(--color-blue); --stat-bg: #EDF5FC;">
+          <div class="stat-info">
+            <span class="stat-number" id="stat-val-total">0</span>
+            <span class="stat-label">Total Sessions Scheduled</span>
+          </div>
+          <div class="stat-icon-wrapper" aria-hidden="true">
+            <i data-lucide="calendar-check" style="width: 22px; height: 22px;"></i>
+          </div>
+        </div>
+
+        <!-- Training & Workshops -->
+        <div class="stat-card" data-filter="training" tabindex="0" role="button" aria-label="Filter training workshops" style="--stat-accent: var(--cat-training-border); --stat-bg: var(--cat-training-bg);">
+          <div class="stat-info">
+            <span class="stat-number" id="stat-val-training">0</span>
+            <span class="stat-label">Training & Skill Labs</span>
+          </div>
+          <div class="stat-icon-wrapper" aria-hidden="true">
+            <i data-lucide="book-open" style="width: 22px; height: 22px;"></i>
+          </div>
+        </div>
+
+        <!-- Engagement & Fun -->
+        <div class="stat-card" data-filter="engagement" tabindex="0" role="button" aria-label="Filter engagement sessions" style="--stat-accent: var(--cat-engagement-border); --stat-bg: var(--cat-engagement-bg);">
+          <div class="stat-info">
+            <span class="stat-number" id="stat-val-engagement">0</span>
+            <span class="stat-label">Engagement & Social</span>
+          </div>
+          <div class="stat-icon-wrapper" aria-hidden="true">
+            <i data-lucide="party-popper" style="width: 22px; height: 22px;"></i>
+          </div>
+        </div>
+
+        <!-- Wellness & Challenges -->
+        <div class="stat-card" data-filter="wellness" tabindex="0" role="button" aria-label="Filter wellness sessions" style="--stat-accent: var(--cat-wellness-border); --stat-bg: var(--cat-wellness-bg);">
+          <div class="stat-info">
+            <span class="stat-number" id="stat-val-wellness">0</span>
+            <span class="stat-label">Wellness & Challenges</span>
+          </div>
+          <div class="stat-icon-wrapper" aria-hidden="true">
+            <i data-lucide="heart-pulse" style="width: 22px; height: 22px;"></i>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Featured Events (Highlights) Section with Mobile Carousel -->
+  <section class="container" id="highlights" aria-labelledby="highlights-heading">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2 id="highlights-heading">
+          <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--color-amber);" aria-hidden="true"></i>
+          Monthly Highlights & Featured Sessions
+        </h2>
+        <p>Key company-wide workshops, town halls, and engagement initiatives you shouldn't miss.</p>
+      </div>
+      
+      <!-- Mobile Carousel Prev/Next Buttons -->
+      <div class="carousel-controls" aria-label="Carousel navigation">
+        <button id="carousel-prev-btn" class="carousel-btn" aria-label="Previous featured session">
+          <i data-lucide="chevron-left" style="width: 18px; height: 18px;"></i>
+        </button>
+        <button id="carousel-next-btn" class="carousel-btn" aria-label="Next featured session">
+          <i data-lucide="chevron-right" style="width: 18px; height: 18px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic Featured Cards Grid (Transforms to Carousel on Mobile) -->
+    <div class="featured-grid" id="featured-cards-grid" role="region" aria-label="Featured events list">
+      <!-- Populated dynamically by app.js from calendar-data.js -->
+    </div>
+  </section>
+
+  <!-- 5. Interactive Monthly Calendar & Agenda Workspace -->
+  <section class="container" id="calendar" aria-labelledby="calendar-heading">
+    <div class="section-header">
+      <div class="section-title-group">
+        <h2 id="calendar-heading">
+          <i data-lucide="calendar" style="width: 20px; height: 20px; color: var(--color-blue);" aria-hidden="true"></i>
+          Training & Engagement Schedule
+        </h2>
+        <p>Explore all planned activities, filter by multiple categories, or search for specific subjects.</p>
+      </div>
+    </div>
+
+    <div class="calendar-workspace">
+      
+      <!-- Left Column: Search & Multi-Category Filter Controls -->
+      <aside class="workspace-sidebar" role="search" aria-label="Event search and filters">
+        
+        <!-- Search Box -->
+        <div class="control-panel">
+          <h3 class="panel-heading">
+            <i data-lucide="search" style="width: 15px; height: 15px; color: var(--color-blue);" aria-hidden="true"></i>
+            Search Events
+          </h3>
+          <div class="search-box">
+            <i data-lucide="search" class="search-icon-inside" aria-hidden="true"></i>
+            <input type="text" id="event-search-input" class="search-input" placeholder="Search topic, trainer, tag..." aria-label="Search events" />
+          </div>
+        </div>
+
+        <!-- Multi-Category Filter Chips Panel -->
+        <div class="control-panel">
+          <div class="filter-quick-bar">
+            <h3 class="panel-heading" style="margin-bottom: 0;">
+              <i data-lucide="filter" style="width: 15px; height: 15px; color: var(--color-blue);" aria-hidden="true"></i>
+              Filter Tracks
+            </h3>
+            <button id="btn-clear-filters" class="btn-clear-filters" title="Reset all search and category filters" style="display: none;">
+              <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+              Clear All
+            </button>
+          </div>
+
+          <!-- Quick Toggle: Upcoming Only -->
+          <div style="margin-bottom: 0.85rem;">
+            <button id="toggle-upcoming-btn" class="toggle-chip" aria-pressed="false">
+              <i data-lucide="calendar-arrow-up" style="width: 13px; height: 13px;"></i>
+              Upcoming Only
+            </button>
+          </div>
+
+          <!-- Category Filter Stack -->
+          <div id="category-filters-container" class="filter-pills-stack" role="group" aria-label="Category filters">
+            <!-- Filter buttons rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Upcoming Agenda Box -->
+        <div class="control-panel agenda-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+            <h3 class="panel-heading" style="margin-bottom: 0;">
+              <i data-lucide="list-ordered" style="width: 15px; height: 15px; color: var(--color-blue);" aria-hidden="true"></i>
+              Upcoming Agenda
+            </h3>
+            <span id="agenda-count-badge" style="font-size: 0.725rem; font-weight: 700; color: var(--color-text-secondary); background: var(--color-surface-subtle); padding: 0.15rem 0.45rem; border-radius: var(--radius-pill);">0 events</span>
+          </div>
+          <div id="agenda-items-container" class="agenda-list" role="list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- Right Column: FullCalendar Mount & Empty State Overlay -->
+      <main class="calendar-card" aria-label="Interactive Calendar View">
+        <div id="filter-progress-bar" class="filter-progress-bar" aria-hidden="true"></div>
+        <div id="fullcalendar-mount"></div>
+        
+        <!-- Empty State Container (Displayed when no events match filters) -->
+        <div id="calendar-empty-state" class="empty-state-box" style="display: none;">
+          <div class="empty-state-icon">
+            <i data-lucide="calendar-x" style="width: 24px; height: 24px;"></i>
+          </div>
+          <h4 class="empty-state-title">No Matching Events Found</h4>
+          <p class="empty-state-desc">We couldn't find any events matching your selected categories or search terms. Try loosening your filter criteria.</p>
+          <button id="btn-empty-reset" class="btn-card-action btn-card-primary">
+            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+            Reset All Filters
+          </button>
+        </div>
+      </main>
+
+    </div>
+  </section>
+
+  <!-- 7. Accessible Event Detail Modal Dialog -->
+  <div id="event-modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-container" id="modal-focus-container" tabindex="-1">
+      
+      <div class="modal-header-bar">
+        <div>
+          <span id="modal-cat-badge" class="category-tag" style="margin-bottom: 0.4rem; display: inline-flex;">Category</span>
+          <h3 id="modal-title" style="font-size: 1.25rem; font-weight: 800; color: var(--color-navy); line-height: 1.3;">Session Title</h3>
+        </div>
+        <button id="modal-close-button" class="modal-close-button" aria-label="Close modal dialog">
+          <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+        </button>
+      </div>
+
+      <div class="modal-body-content">
+        
+        <div class="modal-info-grid">
+          <div class="modal-info-row" id="modal-row-time">
+            <i data-lucide="clock" aria-hidden="true"></i>
+            <div>
+              <strong>Date & Time</strong>
+              <span id="modal-time-val">Sep 09, 2026</span>
+            </div>
+          </div>
+
+          <div class="modal-info-row" id="modal-row-location">
+            <i data-lucide="map-pin" aria-hidden="true"></i>
+            <div>
+              <strong>Location / Mode</strong>
+              <span id="modal-location-val">Virtual (MS Teams)</span>
+            </div>
+          </div>
+
+          <div class="modal-info-row" id="modal-row-instructor">
+            <i data-lucide="user-check" aria-hidden="true"></i>
+            <div>
+              <strong>Instructor / Host</strong>
+              <span id="modal-instructor-val">Aptara Team</span>
+            </div>
+          </div>
+
+          <div class="modal-info-row" id="modal-row-audience">
+            <i data-lucide="users" aria-hidden="true"></i>
+            <div>
+              <strong>Target Audience</strong>
+              <span id="modal-audience-val">All Employees</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-desc-box" id="modal-desc-container">
+          <strong style="display: block; font-size: 0.775rem; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 0.35rem;">Overview & Agenda</strong>
+          <p id="modal-description-val">Event description details will appear here.</p>
+        </div>
+
+        <div id="modal-tags-container" class="modal-tags-container" aria-label="Event tags">
+          <!-- Tags injected here -->
+        </div>
+
+      </div>
+
+      <div class="modal-footer-bar">
+        <div class="modal-footer-left">
+          <button id="modal-btn-copy-link" class="btn-card-action btn-card-outline" title="Copy direct share link">
+            <i data-lucide="link" style="width: 14px; height: 14px;"></i>
+            Copy Link
+          </button>
+          
+          <button id="modal-btn-ics" class="btn-card-action btn-card-outline" title="Download .ics calendar invite">
+            <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
+            Add to Calendar (.ics)
+          </button>
+        </div>
+
+        <div class="modal-footer-right">
+          <a id="modal-btn-reg-link" href="#" target="_blank" rel="noopener" class="btn-card-action btn-card-outline" style="display: none;">
+            <i data-lucide="clipboard-check" style="width: 14px; height: 14px;"></i>
+            Register
+          </a>
+
+          <a id="modal-btn-join-link" href="#" target="_blank" rel="noopener" class="btn-card-action btn-card-primary" style="display: none;">
+            <i data-lucide="video" style="width: 14px; height: 14px;"></i>
+            Join Meeting
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 8. Floating Back-to-Top Control -->
+  <button id="back-to-top-btn" class="back-to-top" aria-label="Scroll back to top of page" title="Back to top">
+    <i data-lucide="arrow-up" style="width: 20px; height: 20px;"></i>
+  </button>
+
+  <!-- 9. Global Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- 10. Compact HR Contact Footer -->
+  <footer class="site-footer" id="contact" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        
+        <div class="footer-brand">
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <img src="assets/images/Aptara-Logo-Reverse.svg" alt="Aptara Logo" style="height: 32px; width: auto;" />
+            <span style="font-weight: 800; font-size: 1.1rem; color: #FFFFFF;">Aptara Pulse</span>
+          </div>
+          <p>
+            The official internal Employee Training, Events and Engagement Portal for Aptara. Designed to empower continuous learning, strengthen team engagement, and celebrate workforce achievements.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>HR & L&D Contacts</h4>
+          <ul class="footer-list">
+            <li><a href="mailto:hr.learning@aptaracorp.com"><i data-lucide="mail" style="width: 13px; height: 13px; display: inline; margin-right: 4px;" aria-hidden="true"></i> hr.learning@aptaracorp.com</a></li>
+            <li><a href="mailto:engagement@aptaracorp.com"><i data-lucide="mail" style="width: 13px; height: 13px; display: inline; margin-right: 4px;" aria-hidden="true"></i> engagement@aptaracorp.com</a></li>
+            <li><a href="tel:+18005550199"><i data-lucide="phone" style="width: 13px; height: 13px; display: inline; margin-right: 4px;" aria-hidden="true"></i> Employee Support Ext: 4400</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Portal Links</h4>
+          <ul class="footer-list">
+            <li><a href="#overview">At a Glance</a></li>
+            <li><a href="#highlights">Featured Highlights</a></li>
+            <li><a href="#calendar">Monthly Calendar</a></li>
+            <li><a href="../calendar-editor/index.html">HR Administration Studio</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Aptara Inc. All rights reserved. Strictly for internal employee use.</p>
+        <p>Aptara Pulse Calendar • Zero-Dependency Enterprise Edition</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Local Standalone Vendor Scripts (Zero Runtime CDN Requests) -->
+  <script src="assets/vendor/lucide/lucide.min.js"></script>
+  <script src="assets/vendor/fuse/fuse.min.js"></script>
+  <script src="assets/vendor/motion/motion.min.js"></script>
+  <script src="assets/vendor/fullcalendar/index.global.min.js"></script>
+
+  <!-- Application Store & Controller -->
+  <script src="assets/js/calendar-data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
