@@ -1,6 +1,6 @@
 /**
- * Aptara Pulse Employee Calendar - Core Interactive Controller
- * Version: 2.1.0 (with Motion One & Micro-Animations)
+ * Aptara Pulse Employee Calendar - Core Interactive Controller (V2.0 Editorial Edition)
+ * Zero runtime external dependencies • 100% Client-Side
  */
 
 (function () {
@@ -35,15 +35,15 @@
     initHeaderScroll();
     initLucideIcons();
     initHeroData();
+    initNextUpEvent();
     initStatsCards();
-    initFeaturedEvents();
-    initCarouselControls();
+    initFeaturedEditorial();
     initSearchEngine();
     initCategoryFilters();
     initUpcomingToggle();
     initClearFiltersAction();
     initCalendarView();
-    initAgendaList();
+    initTimelineAgenda();
     initModalControls();
     initBackToTop();
     initSmoothScroll();
@@ -62,7 +62,7 @@
   }
 
   /**
-   * Sticky Header Scroll Shadow
+   * Sticky Header Scroll Shadow & Compact height
    */
   function initHeaderScroll() {
     const header = document.querySelector('.site-header');
@@ -82,40 +82,129 @@
   function initHeroData() {
     const org = calendarData.organization || {};
     const heroTitle = document.getElementById('hero-title');
+    const heroStatement = document.getElementById('hero-statement');
     const heroMonth = document.getElementById('hero-month-badge');
     const heroMessage = document.getElementById('hero-message');
 
     if (heroTitle && org.portalTitle) heroTitle.textContent = org.portalTitle;
+    if (heroStatement && org.statement) heroStatement.textContent = org.statement;
     if (heroMonth && org.monthLabel) heroMonth.textContent = org.monthLabel;
-    if (heroMessage && org.monthlyMessage) heroMessage.textContent = org.monthlyMessage;
-  }
-
-  /**
-   * Motion One: Gentle Hero Content Entrance & Staggered Reveal
-   */
-  function initEntranceAnimations() {
-    if (prefersReducedMotion()) return;
-
-    // Use Motion One if available
-    if (window.Motion && typeof window.Motion.animate === 'function') {
-      // 1. Hero Content Staggered Entrance
-      window.Motion.animate(
-        '.hero-badge, .hero-title, .hero-message, .hero-actions',
-        { opacity: [0, 1], transform: ['translateY(12px)', 'translateY(0px)'] },
-        { duration: 0.38, delay: window.Motion.stagger ? window.Motion.stagger(0.06) : 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
-      );
-
-      // 2. Staggered Reveal of Statistic Cards
-      window.Motion.animate(
-        '.stat-card',
-        { opacity: [0, 1], transform: ['translateY(16px)', 'translateY(0px)'] },
-        { duration: 0.35, delay: window.Motion.stagger ? window.Motion.stagger(0.07) : 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
-      );
+    if (heroMessage && (org.descriptor || org.monthlyMessage)) {
+      heroMessage.textContent = org.descriptor || org.monthlyMessage;
     }
   }
 
   /**
-   * Initialize "At a Glance" Statistics Cards with Count-Up Effect
+   * Dynamic "Next Up" Event Evaluator & Panel Renderer
+   */
+  function initNextUpEvent() {
+    const container = document.getElementById('hero-next-up-container');
+    if (!container) return;
+
+    const events = calendarData.events || [];
+    if (events.length === 0) {
+      container.innerHTML = `
+        <div class="next-up-card">
+          <div class="next-up-header">
+            <span class="next-up-status-badge">Schedule Notice</span>
+          </div>
+          <h3 class="next-up-title">No Events Scheduled</h3>
+          <p style="color: #CBD5E1; font-size: 0.85rem;">Check back next month for upcoming training and engagement sessions.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Determine current/simulated reference date
+    const now = new Date();
+    // Reference date fallback for September 2026 if running outside target month
+    const refYear = 2026;
+    const refMonth = 8; // September (0-indexed)
+    
+    // Sort events chronologically
+    const sorted = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    // Find next upcoming event (or today's event)
+    let nextEvent = null;
+    let isToday = false;
+
+    // Check if real date is in Sep 2026, otherwise simulate from Sep 04, 2026
+    let testDate = new Date();
+    if (testDate.getFullYear() !== refYear || testDate.getMonth() !== refMonth) {
+      testDate = new Date('2026-09-04T09:00:00');
+    }
+
+    for (const evt of sorted) {
+      const evtStart = new Date(evt.start);
+      const isSameDay = evtStart.toDateString() === testDate.toDateString();
+      if (isSameDay) {
+        nextEvent = evt;
+        isToday = true;
+        break;
+      }
+      if (evtStart >= testDate) {
+        nextEvent = evt;
+        break;
+      }
+    }
+
+    if (!nextEvent) {
+      nextEvent = sorted[0]; // fallback to first session of the month
+    }
+
+    const cat = getCategoryMeta(nextEvent.category);
+    const startDate = new Date(nextEvent.start);
+    const dateFormatted = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+    const timeFormatted = nextEvent.allDay ? 'All Day Session' : startDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    container.innerHTML = `
+      <div class="next-up-card" style="--next-up-accent: ${cat.border}; --next-up-bg: ${cat.bg}; --next-up-color: ${cat.color}; --next-up-border: ${cat.border};">
+        <div class="next-up-header">
+          <span class="next-up-status-badge ${isToday ? 'today' : ''}">
+            <i data-lucide="${isToday ? 'zap' : 'clock'}" style="width: 12px; height: 12px;" aria-hidden="true"></i>
+            ${isToday ? 'Happening Today' : 'Next Priority Session'}
+          </span>
+          <span class="next-up-category-tag">${cat.name}</span>
+        </div>
+
+        <h3 class="next-up-title">${escapeHtml(nextEvent.title)}</h3>
+
+        <div class="next-up-meta-grid">
+          <div class="next-up-meta-item">
+            <i data-lucide="calendar" style="width: 14px; height: 14px;" aria-hidden="true"></i>
+            <span>${dateFormatted}</span>
+          </div>
+          <div class="next-up-meta-item">
+            <i data-lucide="clock" style="width: 14px; height: 14px;" aria-hidden="true"></i>
+            <span>${timeFormatted}</span>
+          </div>
+          <div class="next-up-meta-item" style="grid-column: span 2;">
+            <i data-lucide="map-pin" style="width: 14px; height: 14px;" aria-hidden="true"></i>
+            <span>${escapeHtml(nextEvent.location || 'Virtual')}</span>
+          </div>
+        </div>
+
+        <div class="next-up-footer">
+          <span style="font-size: 0.775rem; color: #CBD5E1; font-weight: 600;">Host: ${escapeHtml(nextEvent.instructor || 'Aptara')}</span>
+          <button class="btn-next-up-action" data-event-id="${nextEvent.id}">
+            <span>View Details</span>
+            <i data-lucide="arrow-right" style="width: 13px; height: 13px;" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Wire action button
+    const actionBtn = container.querySelector('.btn-next-up-action');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', () => openEventModal(nextEvent.id));
+    }
+
+    initLucideIcons();
+  }
+
+  /**
+   * Initialize "At a Glance" Statistics Cards
    */
   function initStatsCards() {
     const events = calendarData.events || [];
@@ -124,32 +213,20 @@
     const engagementCount = events.filter(e => e.category === 'engagement').length;
     const wellnessCount = events.filter(e => e.category === 'wellness').length;
 
-    const totalEl = document.getElementById('stat-val-total');
-    const trainingEl = document.getElementById('stat-val-training');
-    const engagementEl = document.getElementById('stat-val-engagement');
-    const wellnessEl = document.getElementById('stat-val-wellness');
+    animateCountUp('stat-val-total', totalCount);
+    animateCountUp('stat-val-training', trainingCount);
+    animateCountUp('stat-val-engagement', engagementCount);
+    animateCountUp('stat-val-wellness', wellnessCount);
 
-    if (totalEl) animateCountUp(totalEl, totalCount);
-    if (trainingEl) animateCountUp(trainingEl, trainingCount);
-    if (engagementEl) animateCountUp(engagementEl, engagementCount);
-    if (wellnessEl) animateCountUp(wellnessEl, wellnessCount);
-
-    // Stat cards trigger category filters
-    document.querySelectorAll('.stat-card[data-filter]').forEach(card => {
+    document.querySelectorAll('.stat-card').forEach(card => {
       card.addEventListener('click', () => {
-        const filterCat = card.dataset.filter;
-        if (filterCat === 'all') {
-          selectedCategories = new Set(['all']);
-        } else {
-          selectedCategories = new Set([filterCat]);
+        const filterVal = card.getAttribute('data-filter');
+        if (filterVal) {
+          applyCategoryFilter(filterVal);
+          const calEl = document.getElementById('calendar');
+          if (calEl) calEl.scrollIntoView({ behavior: 'smooth' });
         }
-        updateFilterPillsUI();
-        triggerFilterIndicator();
-        updateViews();
-        const calSection = document.getElementById('calendar');
-        if (calSection) calSection.scrollIntoView({ behavior: 'smooth' });
       });
-
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -159,418 +236,378 @@
     });
   }
 
-  /**
-   * Count-up Animation for Numeric Statistics
-   */
-  function animateCountUp(element, targetValue, duration = 380) {
-    if (!element) return;
-    if (prefersReducedMotion() || targetValue === 0) {
-      element.textContent = targetValue;
+  function animateCountUp(elementId, targetValue) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    if (prefersReducedMotion()) {
+      el.textContent = targetValue;
       return;
     }
-
-    const start = 0;
+    let current = 0;
+    const duration = 400;
     const startTime = performance.now();
 
-    function step(currentTime) {
-      const elapsed = currentTime - startTime;
+    function update(time) {
+      const elapsed = time - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      // Ease out quad
-      const easedProgress = 1 - (1 - progress) * (1 - progress);
-      const currentVal = Math.round(start + (targetValue - start) * easedProgress);
-
-      element.textContent = currentVal;
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        element.textContent = targetValue;
-      }
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      current = Math.round(easeProgress * targetValue);
+      el.textContent = current;
+      if (progress < 1) requestAnimationFrame(update);
+      else el.textContent = targetValue;
     }
-
-    requestAnimationFrame(step);
+    requestAnimationFrame(update);
   }
 
   /**
-   * Subtle Progress Indicator while Filtering
+   * Editorial Featured Showcase (1 Primary Card + 3 Secondary Cards)
    */
-  function triggerFilterIndicator() {
-    const bar = document.getElementById('filter-progress-bar');
-    if (!bar || prefersReducedMotion()) return;
-
-    bar.classList.remove('is-loading');
-    void bar.offsetWidth; // Force reflow
-    bar.classList.add('is-loading');
-
-    setTimeout(() => {
-      bar.classList.remove('is-loading');
-    }, 240);
-  }
-
-  /**
-   * Render Featured Event Cards ("Highlights" Section)
-   */
-  function initFeaturedEvents() {
+  function initFeaturedEditorial() {
     const container = document.getElementById('featured-cards-grid');
     if (!container) return;
 
-    const featuredList = (calendarData.events || []).filter(e => e.featured);
-    container.innerHTML = '';
+    const events = calendarData.events || [];
+    const featuredList = events.filter(e => e.featured);
 
     if (featuredList.length === 0) {
-      container.innerHTML = '<p style="color: var(--color-text-secondary); padding: 1.5rem 0;">No featured events for this period.</p>';
+      container.innerHTML = `<p style="color: var(--color-text-muted); font-size: 0.9rem;">No featured sessions selected for this month.</p>`;
       return;
     }
 
-    featuredList.forEach(evt => {
-      const cat = getCategory(evt.category);
-      const card = document.createElement('article');
-      card.className = 'event-card';
-      card.tabIndex = 0;
-      card.style.setProperty('--card-accent', cat.border || '#145DA0');
+    // 1 Primary (first item) and up to 3 Secondary items
+    const primary = featuredList[0];
+    const secondaries = featuredList.slice(1, 4);
 
-      const dateFormatted = formatEventTime(evt.start, evt.end, evt.allDay);
+    const primCat = getCategoryMeta(primary.category);
+    const primStart = new Date(primary.start);
+    const primDateStr = primStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+    const primTimeStr = primary.allDay ? 'All Day' : primStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-      card.innerHTML = `
-        <div>
-          <div class="card-top">
-            <span class="category-tag" style="--cat-bg: ${cat.bg}; --cat-color: ${cat.color};">
-              <i data-lucide="${cat.icon || 'tag'}" style="width: 13px; height: 13px;"></i>
-              ${cat.name}
-            </span>
-            <span class="mode-pill">
-              <i data-lucide="${getModeIcon(evt.mode)}" style="width: 12px; height: 12px;"></i>
-              ${escapeHtml(evt.mode || 'Session')}
-            </span>
+    let html = `
+      <!-- Primary Featured Card (50% area) -->
+      <div class="featured-card-primary">
+        <div class="featured-primary-visual">
+          <div class="featured-primary-visual-pattern"></div>
+          <div class="featured-primary-visual-icon">
+            <i data-lucide="${primCat.icon || 'sparkles'}" style="width: 28px; height: 28px;" aria-hidden="true"></i>
           </div>
-          <h3 class="card-title">${escapeHtml(evt.title)}</h3>
-          <div class="card-meta-list">
-            <div class="card-meta-item">
-              <i data-lucide="clock"></i>
-              <span>${dateFormatted}</span>
-            </div>
-            ${evt.location ? `
-              <div class="card-meta-item">
-                <i data-lucide="map-pin"></i>
-                <span>${escapeHtml(evt.location)}</span>
-              </div>
-            ` : ''}
-            ${evt.instructor ? `
-              <div class="card-meta-item">
-                <i data-lucide="user"></i>
-                <span>${escapeHtml(evt.instructor)}</span>
-              </div>
-            ` : ''}
-          </div>
-          <p class="card-desc">${escapeHtml(evt.description || '')}</p>
         </div>
-        <div class="card-footer">
-          <button class="btn-card-action btn-card-outline" data-action="view-details" data-id="${evt.id}" aria-label="View details for ${escapeHtml(evt.title)}">
-            <i data-lucide="info" style="width: 14px; height: 14px;"></i>
-            Details
-          </button>
-          ${evt.joinUrl ? `
-            <a href="${evt.joinUrl}" target="_blank" rel="noopener" class="btn-card-action btn-card-primary" aria-label="Join session for ${escapeHtml(evt.title)}">
-              <i data-lucide="video" style="width: 14px; height: 14px;"></i>
-              Join Session
-            </a>
-          ` : (evt.registrationUrl ? `
-            <a href="${evt.registrationUrl}" target="_blank" rel="noopener" class="btn-card-action btn-card-primary" aria-label="Register for ${escapeHtml(evt.title)}">
-              <i data-lucide="clipboard-check" style="width: 14px; height: 14px;"></i>
-              Register
-            </a>
-          ` : `
-            <button class="btn-card-action btn-card-primary" data-action="view-details" data-id="${evt.id}" aria-label="Learn more about ${escapeHtml(evt.title)}">
-              <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
-              Learn More
+
+        <div class="featured-primary-body">
+          <div class="featured-primary-top">
+            <span class="featured-pill-tag" style="background: ${primCat.bg}; color: ${primCat.color}; border: 1px solid ${primCat.border};">
+              <i data-lucide="${primCat.icon}" style="width: 11px; height: 11px;"></i>
+              ${primCat.name}
+            </span>
+            <span class="featured-date-pill">
+              <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--color-blue);"></i>
+              ${primDateStr} • ${primTimeStr}
+            </span>
+          </div>
+
+          <h3 class="featured-primary-title">${escapeHtml(primary.title)}</h3>
+          <p class="featured-primary-desc">${escapeHtml(primary.description)}</p>
+
+          <div class="featured-primary-footer">
+            <div class="featured-meta-compact">
+              <span><i data-lucide="map-pin" style="width: 13px; height: 13px; display: inline; margin-right: 3px;"></i> ${escapeHtml(primary.location || 'Virtual')}</span>
+            </div>
+            <button class="btn-card-action btn-card-primary" onclick="window.AptaraPulse.openModal('${primary.id}')">
+              <span>View Details</span>
+              <i data-lucide="arrow-right" style="width: 13px; height: 13px;"></i>
             </button>
-          `)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Featured Stack (3 balanced sub-cards) -->
+      <div class="featured-secondary-stack">
+    `;
+
+    secondaries.forEach(sec => {
+      const cat = getCategoryMeta(sec.category);
+      const start = new Date(sec.start);
+      const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+      html += `
+        <div class="featured-card-secondary" style="--cat-accent: ${cat.border};">
+          <div class="featured-sec-info">
+            <div class="featured-sec-top">
+              <span class="category-tag" style="background: ${cat.bg}; color: ${cat.color};">
+                <i data-lucide="${cat.icon}" style="width: 10px; height: 10px;"></i>
+                ${cat.name}
+              </span>
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted);">${dateStr}</span>
+            </div>
+            <h4 class="featured-sec-title" title="${escapeHtml(sec.title)}">${escapeHtml(sec.title)}</h4>
+            <p class="featured-sec-desc">${escapeHtml(sec.description)}</p>
+          </div>
+
+          <button class="btn-card-action btn-card-outline" onclick="window.AptaraPulse.openModal('${sec.id}')" aria-label="View details for ${escapeHtml(sec.title)}">
+            <span>Details</span>
+            <i data-lucide="chevron-right" style="width: 13px; height: 13px;"></i>
+          </button>
         </div>
       `;
-
-      container.appendChild(card);
     });
 
-    // Attach click handlers
-    container.querySelectorAll('[data-action="view-details"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        lastFocusedElement = btn;
-        const eventId = btn.dataset.id;
-        const targetEvent = calendarData.events.find(ev => ev.id === eventId);
-        if (targetEvent) showEventModal(targetEvent);
-      });
-    });
-
+    html += `</div>`;
+    container.innerHTML = html;
     initLucideIcons();
   }
 
   /**
-   * Mobile Featured Carousel Controls
-   */
-  function initCarouselControls() {
-    const prevBtn = document.getElementById('carousel-prev-btn');
-    const nextBtn = document.getElementById('carousel-next-btn');
-    const grid = document.getElementById('featured-cards-grid');
-
-    if (prevBtn && grid) {
-      prevBtn.addEventListener('click', () => {
-        grid.scrollBy({ left: -grid.clientWidth * 0.85, behavior: 'smooth' });
-      });
-    }
-
-    if (nextBtn && grid) {
-      nextBtn.addEventListener('click', () => {
-        grid.scrollBy({ left: grid.clientWidth * 0.85, behavior: 'smooth' });
-      });
-    }
-  }
-
-  /**
-   * Initialize Fuse.js Search Engine
+   * Fuse.js Search Engine Initialization
    */
   function initSearchEngine() {
-    if (typeof Fuse !== 'undefined') {
-      fuseInstance = new Fuse(calendarData.events || [], {
-        keys: ['title', 'description', 'instructor', 'audience', 'tags', 'location'],
-        threshold: 0.35,
-        ignoreLocation: true
-      });
+    const events = calendarData.events || [];
+    const options = {
+      keys: ['title', 'calendarTitle', 'description', 'instructor', 'tags', 'location', 'audience'],
+      threshold: 0.35,
+      ignoreLocation: true
+    };
+    if (window.Fuse) {
+      fuseInstance = new window.Fuse(events, options);
     }
 
     const searchInput = document.getElementById('event-search-input');
+    const clearBtn = document.getElementById('btn-search-clear');
+
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.trim();
-        triggerFilterIndicator();
-        updateViews();
+        if (clearBtn) {
+          clearBtn.style.display = searchQuery ? 'block' : 'none';
+        }
+        filterEvents();
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+        }
+        searchQuery = '';
+        clearBtn.style.display = 'none';
+        filterEvents();
       });
     }
   }
 
   /**
-   * Multi-Category Filter Chips Stack
+   * Category Filter Chips Initialization in Horizontal Toolbar
    */
   function initCategoryFilters() {
     const container = document.getElementById('category-filters-container');
     if (!container) return;
 
-    container.innerHTML = '';
-
-    // "All Categories" chip
-    const allBtn = document.createElement('button');
-    allBtn.className = 'filter-btn active';
-    allBtn.dataset.category = 'all';
-    allBtn.innerHTML = `
-      <span style="display: flex; align-items: center; gap: 0.5rem;">
-        <i data-lucide="grid" style="width: 14px; height: 14px; color: var(--color-blue);"></i>
-        All Categories
-      </span>
-      <span class="filter-badge">${calendarData.events.length}</span>
+    const categories = calendarData.categories || [];
+    let html = `
+      <button class="category-chip-btn active" data-category="all" aria-pressed="true" style="--chip-active-bg: #EDF5FC; --chip-active-border: var(--color-blue); --chip-active-color: var(--color-blue); --chip-dot-color: var(--color-blue);">
+        <span class="category-chip-dot"></span>
+        <span>All Sessions</span>
+      </button>
     `;
-    allBtn.addEventListener('click', () => toggleCategory('all'));
-    container.appendChild(allBtn);
 
-    // Specific Categories
-    calendarData.categories.forEach(cat => {
-      const count = (calendarData.events || []).filter(e => e.category === cat.id).length;
-      const btn = document.createElement('button');
-      btn.className = 'filter-btn';
-      btn.dataset.category = cat.id;
-      btn.innerHTML = `
-        <span style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="width: 9px; height: 9px; border-radius: 50%; background: ${cat.border || cat.color};"></span>
-          ${cat.name}
-        </span>
-        <span class="filter-badge">${count}</span>
+    categories.forEach(cat => {
+      html += `
+        <button class="category-chip-btn" data-category="${cat.id}" aria-pressed="false" style="--chip-active-bg: ${cat.bg}; --chip-active-border: ${cat.border}; --chip-active-color: ${cat.color}; --chip-dot-color: ${cat.border};">
+          <span class="category-chip-dot"></span>
+          <span>${cat.name}</span>
+        </button>
       `;
-      btn.addEventListener('click', () => toggleCategory(cat.id));
-      container.appendChild(btn);
     });
 
-    initLucideIcons();
+    container.innerHTML = html;
+
+    container.querySelectorAll('.category-chip-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const catId = btn.getAttribute('data-category');
+        handleCategoryChipClick(catId, btn);
+      });
+    });
   }
 
-  /**
-   * Toggle a Category in the Multi-Select Set
-   */
-  function toggleCategory(categoryId) {
-    if (categoryId === 'all') {
-      selectedCategories = new Set(['all']);
+  function handleCategoryChipClick(catId, btnEl) {
+    if (catId === 'all') {
+      selectedCategories.clear();
+      selectedCategories.add('all');
     } else {
-      if (selectedCategories.has('all')) {
-        selectedCategories.delete('all');
-      }
-
-      if (selectedCategories.has(categoryId)) {
-        selectedCategories.delete(categoryId);
+      selectedCategories.delete('all');
+      if (selectedCategories.has(catId)) {
+        selectedCategories.delete(catId);
+        if (selectedCategories.size === 0) {
+          selectedCategories.add('all');
+        }
       } else {
-        selectedCategories.add(categoryId);
-      }
-
-      // If nothing selected, revert to 'all'
-      if (selectedCategories.size === 0) {
-        selectedCategories.add('all');
+        selectedCategories.add(catId);
       }
     }
-
-    triggerFilterIndicator();
-    updateFilterPillsUI();
-    updateViews();
+    updateCategoryChipUI();
+    filterEvents();
   }
 
-  /**
-   * Update UI Active States for Filter Chips
-   */
-  function updateFilterPillsUI() {
-    const isAll = selectedCategories.has('all');
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      const cat = btn.dataset.category;
-      if (isAll && cat === 'all') {
-        btn.classList.add('active');
-      } else if (!isAll && selectedCategories.has(cat)) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+  function updateCategoryChipUI() {
+    const container = document.getElementById('category-filters-container');
+    if (!container) return;
+
+    container.querySelectorAll('.category-chip-btn').forEach(btn => {
+      const catId = btn.getAttribute('data-category');
+      const isActive = selectedCategories.has(catId);
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
+  }
 
-    // Toggle Clear All Filters button visibility
-    const clearBtn = document.getElementById('btn-clear-filters');
-    if (clearBtn) {
-      const hasActiveFilters = !isAll || isUpcomingOnly || searchQuery.length > 0;
-      clearBtn.style.display = hasActiveFilters ? 'inline-flex' : 'none';
-    }
+  function applyCategoryFilter(catId) {
+    selectedCategories.clear();
+    selectedCategories.add(catId);
+    updateCategoryChipUI();
+    filterEvents();
   }
 
   /**
-   * Initialize "Upcoming Only" Filter Toggle
+   * Upcoming Only Toggle
    */
   function initUpcomingToggle() {
-    const toggleBtn = document.getElementById('toggle-upcoming-btn');
-    if (!toggleBtn) return;
+    const btn = document.getElementById('toggle-upcoming-btn');
+    if (!btn) return;
 
-    toggleBtn.addEventListener('click', () => {
+    btn.addEventListener('click', () => {
       isUpcomingOnly = !isUpcomingOnly;
-      toggleBtn.classList.toggle('active', isUpcomingOnly);
-      toggleBtn.setAttribute('aria-pressed', isUpcomingOnly ? 'true' : 'false');
-      triggerFilterIndicator();
-      updateFilterPillsUI();
-      updateViews();
+      btn.setAttribute('aria-pressed', isUpcomingOnly ? 'true' : 'false');
+      filterEvents();
     });
   }
 
   /**
-   * Initialize "Clear All Filters" Action
+   * Clear All Filters Action
    */
   function initClearFiltersAction() {
-    const clearBtn = document.getElementById('btn-clear-filters');
+    const btn = document.getElementById('btn-clear-filters');
     const emptyResetBtn = document.getElementById('btn-empty-reset');
 
     const resetAll = () => {
-      selectedCategories = new Set(['all']);
+      selectedCategories.clear();
+      selectedCategories.add('all');
       isUpcomingOnly = false;
       searchQuery = '';
 
       const searchInput = document.getElementById('event-search-input');
+      const clearSearchBtn = document.getElementById('btn-search-clear');
+      const upcomingBtn = document.getElementById('toggle-upcoming-btn');
+
       if (searchInput) searchInput.value = '';
+      if (clearSearchBtn) clearSearchBtn.style.display = 'none';
+      if (upcomingBtn) upcomingBtn.setAttribute('aria-pressed', 'false');
 
-      const toggleUpcoming = document.getElementById('toggle-upcoming-btn');
-      if (toggleUpcoming) {
-        toggleUpcoming.classList.remove('active');
-        toggleUpcoming.setAttribute('aria-pressed', 'false');
-      }
-
-      triggerFilterIndicator();
-      updateFilterPillsUI();
-      updateViews();
-      showToast('All filters have been reset.');
+      updateCategoryChipUI();
+      filterEvents();
     };
 
-    if (clearBtn) clearBtn.addEventListener('click', resetAll);
+    if (btn) btn.addEventListener('click', resetAll);
     if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetAll);
   }
 
   /**
-   * Filter Events Pipeline
+   * Core Filter Engine: Synchronizes Calendar, Agenda, and Counter
    */
-  function getFilteredEvents() {
-    let list = calendarData.events || [];
+  function filterEvents() {
+    const allEvents = calendarData.events || [];
+    let filtered = [...allEvents];
 
-    // 1. Search Query with Fuse.js
+    // 1. Search Query Filter via Fuse.js
     if (searchQuery && fuseInstance) {
-      list = fuseInstance.search(searchQuery).map(res => res.item);
+      const results = fuseInstance.search(searchQuery);
+      filtered = results.map(r => r.item);
     }
 
-    // 2. Multi-Category Filtering
+    // 2. Category Filter
     if (!selectedCategories.has('all')) {
-      list = list.filter(e => selectedCategories.has(e.category));
+      filtered = filtered.filter(e => selectedCategories.has(e.category));
     }
 
-    // 3. Upcoming-Only Filtering
+    // 3. Upcoming Only Filter
     if (isUpcomingOnly) {
-      const now = new Date('2026-09-08T00:00:00Z'); // Current mid-month reference anchor
-      list = list.filter(e => new Date(e.end || e.start) >= now);
+      const refDate = new Date('2026-09-04T00:00:00');
+      filtered = filtered.filter(e => new Date(e.start) >= refDate);
     }
 
-    return list;
-  }
+    // Update Result Counter & Clear All Visibility
+    const counterEl = document.getElementById('search-result-counter');
+    const clearBtn = document.getElementById('btn-clear-filters');
+    const isFiltered = !selectedCategories.has('all') || isUpcomingOnly || Boolean(searchQuery);
 
-  /**
-   * Synchronize Calendar and Agenda Views with Smooth Fade
-   */
-  function updateViews() {
-    const filtered = getFilteredEvents();
-    const emptyStateEl = document.getElementById('calendar-empty-state');
-    const calendarMount = document.getElementById('fullcalendar-mount');
+    if (counterEl) {
+      counterEl.textContent = `${filtered.length} Session${filtered.length === 1 ? '' : 's'}`;
+    }
+    if (clearBtn) {
+      clearBtn.style.display = isFiltered ? 'inline-flex' : 'none';
+    }
 
-    if (filtered.length === 0) {
-      if (emptyStateEl) emptyStateEl.style.display = 'flex';
-      if (calendarMount) calendarMount.style.display = 'none';
-    } else {
-      if (emptyStateEl) emptyStateEl.style.display = 'none';
-      if (calendarMount) {
-        calendarMount.style.display = 'block';
-        if (!prefersReducedMotion() && window.Motion && typeof window.Motion.animate === 'function') {
-          window.Motion.animate(calendarMount, { opacity: [0.8, 1] }, { duration: 0.2 });
-        }
+    // Update Calendar Events
+    if (calendarInstance) {
+      calendarInstance.removeAllEvents();
+      calendarInstance.addEventSource(mapEventsToFullCalendar(filtered));
+    }
+
+    // Update Empty State
+    const emptyState = document.getElementById('calendar-empty-state');
+    const fcMount = document.getElementById('fullcalendar-mount');
+    if (emptyState && fcMount) {
+      if (filtered.length === 0) {
+        emptyState.style.display = 'block';
+        fcMount.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        fcMount.style.display = 'block';
       }
     }
 
-    // Update FullCalendar
-    if (calendarInstance) {
-      calendarInstance.removeAllEvents();
-      const fcEvents = filtered.map(evt => {
-        const cat = getCategory(evt.category);
-        return {
-          id: evt.id,
-          title: evt.title,
-          start: evt.start,
-          end: evt.end,
-          allDay: evt.allDay,
-          backgroundColor: cat.bg || '#EDF5FC',
-          borderColor: cat.border || '#145DA0',
-          textColor: cat.color || '#145DA0',
-          extendedProps: evt
-        };
-      });
-      calendarInstance.addEventSource(fcEvents);
-    }
-
-    // Update Agenda List
-    renderAgendaList(filtered);
-    initLucideIcons();
+    // Update Timeline Agenda
+    renderTimelineAgenda(filtered);
   }
 
   /**
-   * Initialize FullCalendar Component with Month and List Views
+   * Map event objects to FullCalendar format with calendarTitle
+   */
+  function mapEventsToFullCalendar(eventList) {
+    return eventList.map(e => {
+      const cat = getCategoryMeta(e.category);
+      return {
+        id: e.id,
+        title: e.calendarTitle || e.title,
+        fullTitle: e.title,
+        start: e.start,
+        end: e.end || e.start,
+        allDay: e.allDay,
+        extendedProps: {
+          category: e.category,
+          categoryName: cat.name,
+          categoryColor: cat.color,
+          categoryBg: cat.bg,
+          categoryBorder: cat.border,
+          location: e.location,
+          instructor: e.instructor,
+          description: e.description
+        }
+      };
+    });
+  }
+
+  /**
+   * FullCalendar Initialization with 2-Line Event Pills
    */
   function initCalendarView() {
-    const calendarEl = document.getElementById('fullcalendar-mount');
-    if (!calendarEl || typeof FullCalendar === 'undefined') return;
+    const mountEl = document.getElementById('fullcalendar-mount');
+    if (!mountEl || !window.FullCalendar) return;
 
-    calendarInstance = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
+    const initialView = window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth';
+
+    calendarInstance = new window.FullCalendar.Calendar(mountEl, {
+      initialView: initialView,
       initialDate: '2026-09-01',
       headerToolbar: {
         left: 'prev,next today',
@@ -579,33 +616,51 @@
       },
       buttonText: {
         today: 'Today',
-        dayGridMonth: 'Month',
-        listMonth: 'List'
+        month: 'Month',
+        list: 'List'
       },
-      events: getFilteredEvents().map(evt => {
-        const cat = getCategory(evt.category);
-        return {
-          id: evt.id,
-          title: evt.title,
-          start: evt.start,
-          end: evt.end,
-          allDay: evt.allDay,
-          backgroundColor: cat.bg || '#EDF5FC',
-          borderColor: cat.border || '#145DA0',
-          textColor: cat.color || '#145DA0',
-          extendedProps: evt
-        };
-      }),
-      eventClick: function (info) {
-        lastFocusedElement = info.el;
-        showEventModal(info.event.extendedProps);
-      },
-      height: 'auto',
+      navLinks: true,
       dayMaxEvents: 3,
-      eventTimeFormat: {
-        hour: '2-digit',
-        minute: '2-digit',
-        meridiem: 'short'
+      events: mapEventsToFullCalendar(calendarData.events || []),
+      eventClick: (info) => {
+        info.jsEvent.preventDefault();
+        openEventModal(info.event.id);
+      },
+      eventContent: (arg) => {
+        // Custom 2-Line Event Pill for Grid View
+        if (arg.view.type === 'dayGridMonth') {
+          const catBorder = arg.event.extendedProps.categoryBorder || '#145DA0';
+          const catBg = arg.event.extendedProps.categoryBg || '#EDF5FC';
+          const catColor = arg.event.extendedProps.categoryColor || '#102A43';
+          
+          let timeText = '';
+          if (!arg.event.allDay && arg.event.start) {
+            timeText = arg.event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+          } else {
+            timeText = 'All Day';
+          }
+
+          const customEl = document.createElement('div');
+          customEl.className = 'fc-custom-event-pill';
+          customEl.style.setProperty('--pill-border', catBorder);
+          customEl.style.setProperty('--pill-bg', catBg);
+          customEl.style.setProperty('--pill-color', catColor);
+          customEl.style.setProperty('--pill-accent', catBorder);
+          customEl.title = `${arg.event.extendedProps.fullTitle || arg.event.title} (${timeText}) - ${arg.event.extendedProps.location || ''}`;
+          customEl.tabIndex = 0;
+
+          customEl.innerHTML = `
+            <span class="fc-pill-time">${timeText}</span>
+            <span class="fc-pill-title">${escapeHtml(arg.event.title)}</span>
+          `;
+          return { domNodes: [customEl] };
+        }
+        return true;
+      },
+      windowResize: () => {
+        if (window.innerWidth < 768 && calendarInstance.view.type === 'dayGridMonth') {
+          calendarInstance.changeView('listMonth');
+        }
       }
     });
 
@@ -613,169 +668,191 @@
   }
 
   /**
-   * Render Upcoming Events Agenda
+   * Full-Width Chronological Timeline Agenda
    */
-  function initAgendaList() {
-    renderAgendaList(getFilteredEvents());
+  function initTimelineAgenda() {
+    renderTimelineAgenda(calendarData.events || []);
   }
 
-  function renderAgendaList(eventsList) {
-    const container = document.getElementById('agenda-items-container');
-    const countEl = document.getElementById('agenda-count-badge');
+  function renderTimelineAgenda(eventList) {
+    const container = document.getElementById('agenda-timeline-container');
+    const badge = document.getElementById('agenda-count-badge');
     if (!container) return;
 
-    if (countEl) countEl.textContent = `${eventsList.length} events`;
-    container.innerHTML = '';
+    if (badge) {
+      badge.textContent = `${eventList.length} session${eventList.length === 1 ? '' : 's'} scheduled`;
+    }
 
-    if (eventsList.length === 0) {
-      container.innerHTML = '<p style="color: var(--color-text-muted); font-size: 0.85rem; padding: 1.5rem 0; text-align: center;">No matching events.</p>';
+    if (eventList.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state-box">
+          <p style="color: var(--color-text-muted);">No agenda items match your current filter selection.</p>
+        </div>
+      `;
       return;
     }
 
-    const sorted = [...eventsList].sort((a, b) => new Date(a.start) - new Date(b.start));
+    // Sort chronologically
+    const sorted = [...eventList].sort((a, b) => new Date(a.start) - new Date(b.start));
 
+    // Group by Date string
+    const groups = {};
     sorted.forEach(evt => {
-      const cat = getCategory(evt.category);
-      const startDate = new Date(evt.start);
-      const dayNum = startDate.getDate().toString().padStart(2, '0');
-      const monthStr = startDate.toLocaleDateString('en-US', { month: 'short' });
-      const timeStr = formatEventTime(evt.start, evt.end, evt.allDay);
+      const dateKey = evt.start.split('T')[0];
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(evt);
+    });
 
-      const item = document.createElement('button');
-      item.className = 'agenda-item';
-      item.setAttribute('aria-label', `View details for ${evt.title} on ${monthStr} ${dayNum}`);
-      item.innerHTML = `
-        <div class="agenda-date-badge" aria-hidden="true">
-          <span class="agenda-date-day">${dayNum}</span>
-          <span class="agenda-date-month">${monthStr}</span>
-        </div>
-        <div class="agenda-details">
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 2px;">
-            <span class="category-tag" style="--cat-bg: ${cat.bg}; --cat-color: ${cat.color}; font-size: 0.7rem; padding: 0.15rem 0.5rem;">
-              ${cat.name}
-            </span>
-            <span style="font-size: 0.725rem; color: var(--color-text-secondary);">
-              ${escapeHtml(evt.mode || 'Virtual')}
-            </span>
+    let html = '';
+    Object.keys(groups).forEach(dateKey => {
+      const dateObj = new Date(dateKey + 'T00:00:00');
+      const dayNum = dateObj.getDate();
+      const monthStr = dateObj.toLocaleDateString('en-US', { month: 'short' });
+      const weekdayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+      const evtsInDate = groups[dateKey];
+
+      html += `
+        <div class="timeline-group">
+          <div class="timeline-date-block">
+            <div class="timeline-date-day">${dayNum}</div>
+            <div class="timeline-date-month">${monthStr} 2026</div>
+            <div class="timeline-date-weekday">${weekdayStr}</div>
           </div>
-          <h4 class="agenda-title">${escapeHtml(evt.title)}</h4>
-          <div class="agenda-meta">
-            <span><i data-lucide="clock" style="width: 13px; height: 13px; display: inline; vertical-align: -2px; margin-right: 3px;"></i>${timeStr}</span>
-            ${evt.location ? `<span><i data-lucide="map-pin" style="width: 13px; height: 13px; display: inline; vertical-align: -2px; margin-right: 3px;"></i>${escapeHtml(evt.location)}</span>` : ''}
+
+          <div class="timeline-events-list">
+      `;
+
+      evtsInDate.forEach(evt => {
+        const cat = getCategoryMeta(evt.category);
+        const startTime = evt.allDay ? 'All Day Session' : new Date(evt.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+        html += `
+          <div class="timeline-event-card" style="--event-border: ${cat.border};">
+            <div class="timeline-event-body">
+              <div class="timeline-event-header">
+                <span class="category-tag" style="background: ${cat.bg}; color: ${cat.color};">
+                  <i data-lucide="${cat.icon}" style="width: 11px; height: 11px;"></i>
+                  ${cat.name}
+                </span>
+                <span style="font-size: 0.775rem; font-weight: 700; color: var(--color-blue);">
+                  <i data-lucide="clock" style="width: 12px; height: 12px; display: inline; margin-right: 3px;"></i>
+                  ${startTime}
+                </span>
+              </div>
+
+              <h3 class="timeline-event-title">${escapeHtml(evt.title)}</h3>
+
+              <div class="timeline-event-meta">
+                <span><i data-lucide="map-pin" style="width: 13px; height: 13px;"></i> ${escapeHtml(evt.location || 'Virtual')}</span>
+                <span><i data-lucide="user" style="width: 13px; height: 13px;"></i> ${escapeHtml(evt.instructor || 'Aptara Team')}</span>
+                <span><i data-lucide="users" style="width: 13px; height: 13px;"></i> ${escapeHtml(evt.audience || 'All Employees')}</span>
+              </div>
+            </div>
+
+            <button class="btn-card-action btn-card-outline" onclick="window.AptaraPulse.openModal('${evt.id}')" aria-label="View session details for ${escapeHtml(evt.title)}">
+              <span>Details</span>
+              <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+        `;
+      });
+
+      html += `
           </div>
         </div>
       `;
-
-      item.addEventListener('click', () => {
-        lastFocusedElement = item;
-        showEventModal(evt);
-      });
-
-      container.appendChild(item);
     });
 
+    container.innerHTML = html;
     initLucideIcons();
   }
 
   /**
-   * Event Detail Modal Dialog with Focus Trap & Dynamic Fields
+   * Event Detail Modal Dialog Management
    */
-  function showEventModal(evt) {
+  function initModalControls() {
+    const overlay = document.getElementById('event-modal-overlay');
+    const closeBtn = document.getElementById('modal-close-button');
+    const copyLinkBtn = document.getElementById('modal-btn-copy-link');
+    const icsBtn = document.getElementById('modal-btn-ics');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (overlay) {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+      });
+    }
+
+    if (copyLinkBtn) {
+      copyLinkBtn.addEventListener('click', () => {
+        if (!activeModalEvent) return;
+        const shareUrl = `${window.location.origin}${window.location.pathname}#event-${activeModalEvent.id}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast('Direct event link copied to clipboard!');
+        }).catch(() => {
+          showToast('Link copied: ' + shareUrl);
+        });
+      });
+    }
+
+    if (icsBtn) {
+      icsBtn.addEventListener('click', () => {
+        if (!activeModalEvent) return;
+        downloadIcsFile(activeModalEvent);
+      });
+    }
+  }
+
+  function openEventModal(eventId) {
+    const events = calendarData.events || [];
+    const evt = events.find(e => e.id === eventId);
     if (!evt) return;
+
     activeModalEvent = evt;
+    lastFocusedElement = document.activeElement;
 
-    const modalOverlay = document.getElementById('event-modal-overlay');
-    if (!modalOverlay) return;
+    const overlay = document.getElementById('event-modal-overlay');
+    const cat = getCategoryMeta(evt.category);
 
-    const cat = getCategory(evt.category);
-
-    const catBadge = document.getElementById('modal-cat-badge');
     const titleEl = document.getElementById('modal-title');
+    const catEl = document.getElementById('modal-cat-badge');
     const timeEl = document.getElementById('modal-time-val');
-    const rowLocation = document.getElementById('modal-row-location');
-    const locationEl = document.getElementById('modal-location-val');
-    const rowInstructor = document.getElementById('modal-row-instructor');
-    const instructorEl = document.getElementById('modal-instructor-val');
-    const rowAudience = document.getElementById('modal-row-audience');
-    const audienceEl = document.getElementById('modal-audience-val');
-    const descContainer = document.getElementById('modal-desc-container');
+    const locEl = document.getElementById('modal-location-val');
+    const instEl = document.getElementById('modal-instructor-val');
+    const audEl = document.getElementById('modal-audience-val');
     const descEl = document.getElementById('modal-description-val');
     const tagsContainer = document.getElementById('modal-tags-container');
+    const joinBtn = document.getElementById('modal-btn-join-link');
+    const regBtn = document.getElementById('modal-btn-reg-link');
 
-    // Category Badge
-    if (catBadge) {
-      catBadge.textContent = cat.name;
-      catBadge.style.backgroundColor = cat.bg;
-      catBadge.style.color = cat.color;
-    }
-
-    // Title
     if (titleEl) titleEl.textContent = evt.title;
-
-    // Time
-    if (timeEl) timeEl.textContent = formatEventTime(evt.start, evt.end, evt.allDay);
-
-    // Location / Mode (Hide cleanly if empty)
-    if (rowLocation) {
-      if (evt.location) {
-        rowLocation.style.display = 'flex';
-        if (locationEl) locationEl.textContent = evt.location;
-      } else {
-        rowLocation.style.display = 'none';
-      }
+    if (catEl) {
+      catEl.textContent = cat.name;
+      catEl.style.backgroundColor = cat.bg;
+      catEl.style.color = cat.color;
+      catEl.style.borderColor = cat.border;
     }
 
-    // Instructor / Host (Hide cleanly if empty)
-    if (rowInstructor) {
-      if (evt.instructor) {
-        rowInstructor.style.display = 'flex';
-        if (instructorEl) instructorEl.textContent = evt.instructor;
-      } else {
-        rowInstructor.style.display = 'none';
-      }
+    if (timeEl) {
+      const start = new Date(evt.start);
+      const dateStr = start.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const timeStr = evt.allDay ? 'All Day Session' : start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      timeEl.textContent = `${dateStr} (${timeStr})`;
     }
 
-    // Target Audience (Hide cleanly if empty)
-    if (rowAudience) {
-      if (evt.audience) {
-        rowAudience.style.display = 'flex';
-        if (audienceEl) audienceEl.textContent = evt.audience;
-      } else {
-        rowAudience.style.display = 'none';
-      }
-    }
+    if (locEl) locEl.textContent = evt.location || 'Virtual';
+    if (instEl) instEl.textContent = evt.instructor || 'Aptara Team';
+    if (audEl) audEl.textContent = evt.audience || 'All Employees';
+    if (descEl) descEl.textContent = evt.description || 'No additional details provided.';
 
-    // Description (Hide cleanly if empty)
-    if (descContainer) {
-      if (evt.description) {
-        descContainer.style.display = 'block';
-        if (descEl) descEl.textContent = evt.description;
-      } else {
-        descContainer.style.display = 'none';
-      }
-    }
-
-    // Tags
     if (tagsContainer) {
-      tagsContainer.innerHTML = '';
       if (evt.tags && evt.tags.length > 0) {
+        tagsContainer.innerHTML = evt.tags.map(t => `<span class="modal-tag">#${escapeHtml(t)}</span>`).join('');
         tagsContainer.style.display = 'flex';
-        evt.tags.forEach(t => {
-          const pill = document.createElement('span');
-          pill.className = 'tag-pill';
-          pill.textContent = '#' + t;
-          tagsContainer.appendChild(pill);
-        });
       } else {
         tagsContainer.style.display = 'none';
       }
     }
-
-    // Action Buttons
-    const joinBtn = document.getElementById('modal-btn-join-link');
-    const regBtn = document.getElementById('modal-btn-reg-link');
-    const icsBtn = document.getElementById('modal-btn-ics');
-    const copyLinkBtn = document.getElementById('modal-btn-copy-link');
 
     if (joinBtn) {
       if (evt.joinUrl) {
@@ -795,254 +872,68 @@
       }
     }
 
-    if (icsBtn) {
-      icsBtn.onclick = () => downloadIcsFile(evt);
+    if (overlay) {
+      overlay.classList.add('active');
+      const focusContainer = document.getElementById('modal-focus-container');
+      if (focusContainer) focusContainer.focus();
     }
-
-    if (copyLinkBtn) {
-      copyLinkBtn.onclick = () => copyEventDirectLink(evt);
-    }
-
-    // Update URL hash without scrolling
-    try {
-      history.replaceState(null, '', '#event=' + encodeURIComponent(evt.id));
-    } catch (e) {
-      // Fallback
-    }
-
-    modalOverlay.classList.add('is-active');
-    initLucideIcons();
-
-    // Trigger celebration confetti ONLY for Awards, Celebrations, or Birthday/Trivia highlights
-    if (isCelebrationEvent(evt)) {
-      triggerTastefulConfetti();
-    }
-
-    // Trap focus inside modal
-    setTimeout(() => {
-      const closeBtn = document.getElementById('modal-close-button');
-      if (closeBtn) closeBtn.focus();
-    }, 50);
-  }
-
-  /**
-   * Determine if Event is a Celebration / Awards Event
-   */
-  function isCelebrationEvent(evt) {
-    if (!evt) return false;
-    const searchTarget = `${evt.title} ${evt.category} ${(evt.tags || []).join(' ')}`.toLowerCase();
-    return searchTarget.includes('award') ||
-           searchTarget.includes('celebrat') ||
-           searchTarget.includes('birthday') ||
-           searchTarget.includes('trivia') ||
-           searchTarget.includes('town hall');
-  }
-
-  /**
-   * Tasteful, Restrained Confetti Burst (Self-destructing, 1.2s max)
-   */
-  function triggerTastefulConfetti() {
-    if (prefersReducedMotion()) return;
-
-    const canvas = document.createElement('canvas');
-    canvas.className = 'confetti-canvas';
-    document.body.appendChild(canvas);
-
-    const ctx = canvas.getContext('2d');
-    const width = (canvas.width = window.innerWidth);
-    const height = (canvas.height = window.innerHeight);
-
-    const colors = ['#145DA0', '#6B4C9A', '#F2B84B', '#E85D75', '#55EFC4'];
-    const particleCount = 28;
-    const particles = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: width * 0.5 + (Math.random() - 0.5) * 120,
-        y: height * 0.45 + (Math.random() - 0.5) * 60,
-        vx: (Math.random() - 0.5) * 8,
-        vy: -Math.random() * 6 - 3,
-        size: Math.random() * 6 + 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        rotation: Math.random() * 360,
-        vRot: (Math.random() - 0.5) * 12,
-        opacity: 1
-      });
-    }
-
-    const startTime = performance.now();
-    const duration = 1200;
-
-    function render(currentTime) {
-      const elapsed = currentTime - startTime;
-      const progress = elapsed / duration;
-
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.25; // gravity
-        p.rotation += p.vRot;
-        p.opacity = Math.max(0, 1 - progress * 1.3);
-
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate((p.rotation * Math.PI) / 180);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.opacity;
-        ctx.fillRect(-p.size * 0.5, -p.size * 0.5, p.size, p.size * 0.6);
-        ctx.restore();
-      });
-
-      if (progress < 1) {
-        requestAnimationFrame(render);
-      } else {
-        if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
-      }
-    }
-
-    requestAnimationFrame(render);
   }
 
   function closeModal() {
-    const modalOverlay = document.getElementById('event-modal-overlay');
-    if (!modalOverlay || !modalOverlay.classList.contains('is-active')) return;
-
-    modalOverlay.classList.remove('is-active');
+    const overlay = document.getElementById('event-modal-overlay');
+    if (overlay) overlay.classList.remove('active');
     activeModalEvent = null;
-
-    // Reset URL hash cleanly
-    try {
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-    } catch (e) {
-      // Fallback
-    }
-
-    // Restore focus to last active element
     if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
       lastFocusedElement.focus();
     }
   }
 
-  function initModalControls() {
-    const modalOverlay = document.getElementById('event-modal-overlay');
-    const closeBtn = document.getElementById('modal-close-button');
-    const modalContainer = document.getElementById('modal-focus-container');
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', closeModal);
-    }
-
-    if (modalOverlay) {
-      modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) closeModal();
-      });
-    }
-
-    // Keyboard Focus Trap & Escape Key Listener
-    document.addEventListener('keydown', (e) => {
-      if (!modalOverlay || !modalOverlay.classList.contains('is-active')) return;
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeModal();
-        return;
-      }
-
-      if (e.key === 'Tab' && modalContainer) {
-        const focusableElements = modalContainer.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        if (e.shiftKey) {
-          if (document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement.focus();
-          }
-        }
-      }
-    });
-  }
-
   /**
-   * URL Hash Deep Linking Support
+   * RFC 2445 .ICS Calendar File Generator
    */
-  function checkUrlHashOnLoad() {
-    const hash = window.location.hash;
-    if (!hash) return;
-
-    let targetEventId = '';
-    if (hash.startsWith('#event=')) {
-      targetEventId = decodeURIComponent(hash.replace('#event=', ''));
-    } else if (hash.startsWith('#evt-')) {
-      targetEventId = decodeURIComponent(hash.slice(1));
+  function downloadIcsFile(evt) {
+    const startIso = evt.start.replace(/[-:]/g, '').split('.')[0];
+    let endIso = evt.end ? evt.end.replace(/[-:]/g, '').split('.')[0] : startIso;
+    if (evt.allDay) {
+      endIso = startIso;
     }
 
-    if (targetEventId) {
-      const target = (calendarData.events || []).find(e => e.id === targetEventId);
-      if (target) {
-        setTimeout(() => showEventModal(target), 200);
-      }
-    }
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Aptara Inc//Aptara Pulse Calendar//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      `UID:${evt.id}@pulse.aptaracorp.com`,
+      `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+      `DTSTART:${startIso}`,
+      `DTEND:${endIso}`,
+      `SUMMARY:${escapeIcs(evt.title)}`,
+      `DESCRIPTION:${escapeIcs(evt.description || '')}`,
+      `LOCATION:${escapeIcs(evt.location || 'Virtual')}`,
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
 
-    window.addEventListener('hashchange', () => {
-      const curHash = window.location.hash;
-      if (curHash.startsWith('#event=')) {
-        const evId = decodeURIComponent(curHash.replace('#event=', ''));
-        const ev = (calendarData.events || []).find(e => e.id === evId);
-        if (ev && (!activeModalEvent || activeModalEvent.id !== evId)) {
-          showEventModal(ev);
-        }
-      } else if (!curHash && activeModalEvent) {
-        closeModal();
-      }
-    });
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${evt.id}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+    showToast('Calendar invite (.ics) downloaded.');
+  }
+
+  function escapeIcs(str) {
+    return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
   }
 
   /**
-   * Copy Direct Event Link with Success Toast
-   */
-  function copyEventDirectLink(evt) {
-    const url = window.location.origin + window.location.pathname + '#event=' + encodeURIComponent(evt.id);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(() => {
-        showToast('Event link copied to clipboard!');
-      }).catch(() => {
-        fallbackCopyText(url);
-      });
-    } else {
-      fallbackCopyText(url);
-    }
-  }
-
-  function fallbackCopyText(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.opacity = '0';
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      showToast('Event link copied to clipboard!');
-    } catch (err) {
-      showToast('Could not copy link.');
-    }
-    document.body.removeChild(textArea);
-  }
-
-  /**
-   * Toast Notification with Smooth Dismissal
+   * Toast Notification Controller
    */
   function showToast(message) {
     const container = document.getElementById('toast-container');
@@ -1050,69 +941,16 @@
 
     const toast = document.createElement('div');
     toast.className = 'toast-message';
-    toast.innerHTML = `
-      <i data-lucide="check-circle" style="width: 16px; height: 16px; color: #55EFC4;"></i>
-      <span>${escapeHtml(message)}</span>
-    `;
-
+    toast.innerHTML = `<i data-lucide="check-circle" style="width: 15px; height: 15px; color: #68D391;"></i> <span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
     initLucideIcons();
 
     setTimeout(() => {
-      toast.classList.add('toast-dismissing');
-      setTimeout(() => {
-        if (toast.parentNode) toast.parentNode.removeChild(toast);
-      }, 220);
-    }, 2800);
-  }
-
-  /**
-   * Helper: Generate & Download .ICS Calendar Invite File
-   */
-  function downloadIcsFile(evt) {
-    const startDate = new Date(evt.start);
-    let endDate;
-    if (evt.end) {
-      endDate = new Date(evt.end);
-    } else if (evt.allDay) {
-      endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000);
-    } else {
-      endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-    }
-
-    const formatDateToICS = (d) => {
-      return d.toISOString().replace(/-|:|\.\d+/g, '');
-    };
-
-    const icsContent = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//Aptara//Aptara Pulse Calendar//EN',
-      'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH',
-      'BEGIN:VEVENT',
-      `UID:${evt.id}@aptaracorp.com`,
-      `DTSTAMP:${formatDateToICS(new Date())}`,
-      `DTSTART:${formatDateToICS(startDate)}`,
-      `DTEND:${formatDateToICS(endDate)}`,
-      `SUMMARY:${evt.title}`,
-      `DESCRIPTION:${(evt.description || '').replace(/\n/g, '\\n')}`,
-      `LOCATION:${evt.location || 'Virtual Meeting'}`,
-      'STATUS:CONFIRMED',
-      'END:VEVENT',
-      'END:VCALENDAR'
-    ].join('\r\n');
-
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${evt.id || 'aptara-event'}.ics`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showToast('.ICS calendar invite downloaded.');
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(8px)';
+      toast.style.transition = 'all 0.2s ease';
+      setTimeout(() => toast.remove(), 200);
+    }, 3200);
   }
 
   /**
@@ -1123,7 +961,7 @@
     if (!btn) return;
 
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > 400) {
         btn.classList.add('visible');
       } else {
         btn.classList.remove('visible');
@@ -1136,91 +974,108 @@
   }
 
   /**
-   * Smooth Anchor Navigation
+   * Smooth Anchor Navigation with Active Section Highlighting
    */
   function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (!href || href === '#') return;
-        const targetId = href.slice(1);
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          e.preventDefault();
-          targetEl.scrollIntoView({ behavior: 'smooth' });
-          history.replaceState(null, '', href);
+    const links = document.querySelectorAll('.nav-link');
+    const sections = ['overview', 'highlights', 'calendar', 'agenda', 'contact'];
+
+    window.addEventListener('scroll', () => {
+      let currentSection = '';
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 120 && rect.bottom >= 120) {
+            currentSection = id;
+          }
         }
       });
-    });
+
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === `#${currentSection}`) {
+          link.classList.add('active');
+        } else if (currentSection) {
+          link.classList.remove('active');
+        }
+      });
+    }, { passive: true });
   }
 
   /**
-   * Keyboard Accessibility Enhancements
+   * Keyboard Accessibility & Focus Trap
    */
   function initKeyboardAccessibility() {
-    // Enter key triggers on event cards
-    document.querySelectorAll('.event-card').forEach(card => {
-      card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const detailBtn = card.querySelector('[data-action="view-details"]');
-          if (detailBtn) detailBtn.click();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const overlay = document.getElementById('event-modal-overlay');
+        if (overlay && overlay.classList.contains('active')) {
+          closeModal();
         }
-      });
+      }
     });
   }
 
   /**
-   * Helper Utilities
+   * Motion One Entrance Micro-Animations
    */
-  function getCategory(catId) {
-    return (calendarData.categories || []).find(c => c.id === catId) || {
-      id: catId,
-      name: catId,
-      color: '#145DA0',
-      bg: '#EDF5FC',
-      border: '#145DA0',
+  function initEntranceAnimations() {
+    if (prefersReducedMotion()) return;
+    if (window.Motion && typeof window.Motion.animate === 'function') {
+      window.Motion.animate(
+        '.hero-badge, .hero-title, .hero-statement-wrap, .hero-descriptor, .hero-actions, .next-up-card',
+        { opacity: [0, 1], transform: ['translateY(14px)', 'translateY(0px)'] },
+        { duration: 0.4, delay: window.Motion.stagger ? window.Motion.stagger(0.06) : 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+      );
+
+      window.Motion.animate(
+        '.stat-card',
+        { opacity: [0, 1], transform: ['translateY(16px)', 'translateY(0px)'] },
+        { duration: 0.35, delay: window.Motion.stagger ? window.Motion.stagger(0.06) : 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
+      );
+    }
+  }
+
+  /**
+   * Check URL hash on load (e.g. #event-evt-20260904-01)
+   */
+  function checkUrlHashOnLoad() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#event-')) {
+      const eventId = hash.replace('#event-', '');
+      setTimeout(() => openEventModal(eventId), 200);
+    }
+  }
+
+  /**
+   * Helpers
+   */
+  function getCategoryMeta(catId) {
+    const categories = calendarData.categories || [];
+    return categories.find(c => c.id === catId) || {
+      name: 'Event',
+      color: '#102A43',
+      bg: '#EEF2F6',
+      border: '#102A43',
       icon: 'calendar'
     };
   }
 
-  function getModeIcon(mode) {
-    switch ((mode || '').toLowerCase()) {
-      case 'virtual': return 'video';
-      case 'hybrid': return 'globe';
-      case 'in-person': return 'building';
-      default: return 'calendar';
-    }
-  }
-
-  function formatEventTime(startStr, endStr, allDay) {
-    if (!startStr) return '';
-    const start = new Date(startStr);
-    if (allDay) {
-      return start.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' (All Day)';
-    }
-    const datePart = start.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    const timePart = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-    if (endStr) {
-      const end = new Date(endStr);
-      const endTimePart = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      return `${datePart} • ${timePart} – ${endTimePart}`;
-    }
-    return `${datePart} • ${timePart}`;
-  }
-
   function escapeHtml(str) {
     if (!str) return '';
-    return String(str).replace(/[&<>"']/g, function (m) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-    });
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
-  // Expose global methods for deep linking & external scripting
-  window.openEventModal = function (eventId) {
-    const ev = (calendarData.events || []).find(e => e.id === eventId);
-    if (ev) showEventModal(ev);
+  // Global namespace export for modal triggers
+  window.AptaraPulse = {
+    openModal: openEventModal,
+    closeModal: closeModal
   };
-  window.closeEventModal = closeModal;
 
 })();

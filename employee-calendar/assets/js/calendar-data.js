@@ -6,13 +6,15 @@
  */
 
 window.APTARA_CALENDAR_DATA = {
-  version: "1.0.0",
+  version: "2.0.0",
   lastUpdated: "2026-09-01T09:00:00Z",
   organization: {
     name: "Aptara",
-    portalTitle: "Aptara Pulse — Training, Events & Engagement Calendar",
-    tagline: "Learn. Engage. Celebrate.",
-    monthLabel: "September 2026",
+    portalTitle: "Aptara Pulse",
+    statement: "Learn. Connect. Celebrate.",
+    descriptor: "Training, events and employee experiences—all in one place.",
+    tagline: "One place to learn, connect and celebrate at Aptara.",
+    monthLabel: "September 2026 Edition",
     monthlyMessage: "Welcome to September! Discover this month's curated technical workshops, wellness sessions, global town halls, and engagement challenges designed to help you learn, connect, and celebrate."
   },
   categories: [
@@ -66,6 +68,7 @@ window.APTARA_CALENDAR_DATA = {
     {
       id: "evt-20260904-01",
       title: "Fun Friday: Virtual Trivia & Puzzle Challenge",
+      calendarTitle: "Virtual Trivia & Puzzles",
       category: "engagement",
       start: "2026-09-04T16:00:00",
       end: "2026-09-04T17:00:00",
@@ -79,11 +82,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "",
       recordingUrl: "",
       featured: true,
+      image: "",
       tags: ["Trivia", "Fun Friday", "Engagement", "Team Building"]
     },
     {
       id: "evt-20260907-01",
       title: "Labor Day / Regional Holiday Observance",
+      calendarTitle: "Labor Day Holiday",
       category: "holiday",
       start: "2026-09-07",
       end: "2026-09-07",
@@ -97,11 +102,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "",
       recordingUrl: "",
       featured: false,
+      image: "",
       tags: ["Holiday", "Observance", "Off"]
     },
     {
       id: "evt-20260909-01",
       title: "Generative AI Prompt Engineering for Digital Publishing",
+      calendarTitle: "GenAI Prompt Engineering",
       category: "training",
       start: "2026-09-09T14:30:00",
       end: "2026-09-09T16:30:00",
@@ -115,11 +122,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "https://forms.office.com/r/aptara-ai-training",
       recordingUrl: "",
       featured: true,
+      image: "",
       tags: ["AI", "GenAI", "Publishing", "Upskilling", "XML", "Productivity"]
     },
     {
       id: "evt-20260911-01",
       title: "Desk Ergonomics & Eye Strain Prevention Workshop",
+      calendarTitle: "Desk Ergonomics Lab",
       category: "wellness",
       start: "2026-09-11T11:00:00",
       end: "2026-09-11T12:00:00",
@@ -133,11 +142,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "",
       recordingUrl: "",
       featured: false,
+      image: "",
       tags: ["Wellness", "Health", "Ergonomics", "Hybrid", "Posture"]
     },
     {
       id: "evt-20260916-01",
       title: "Advanced Excel: Power Query & Dynamic Dashboards",
+      calendarTitle: "Excel Power Query",
       category: "training",
       start: "2026-09-16T15:00:00",
       end: "2026-09-16T17:00:00",
@@ -151,11 +162,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "https://forms.office.com/r/excel-advanced-2026",
       recordingUrl: "",
       featured: false,
+      image: "",
       tags: ["Excel", "Analytics", "Dashboards", "L&D", "Automation"]
     },
     {
       id: "evt-20260918-01",
       title: "Aptara Wellness Walkathon & Fitness Challenge Kickoff",
+      calendarTitle: "Fitness Walkathon Kickoff",
       category: "wellness",
       start: "2026-09-18T09:00:00",
       end: "2026-09-25T18:00:00",
@@ -169,11 +182,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "https://forms.office.com/r/walkathon-signup",
       recordingUrl: "",
       featured: true,
+      image: "",
       tags: ["Walkathon", "Fitness", "Wellness", "Challenge", "Prizes"]
     },
     {
       id: "evt-20260924-01",
       title: "Q3 Global Leadership Town Hall & Pulse Awards",
+      calendarTitle: "Q3 Town Hall & Awards",
       category: "townhall",
       start: "2026-09-24T17:00:00",
       end: "2026-09-24T18:30:00",
@@ -187,11 +202,13 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "",
       recordingUrl: "",
       featured: true,
+      image: "",
       tags: ["Townhall", "Leadership", "Awards", "Executive", "Q3", "Recognition"]
     },
     {
       id: "evt-20260928-01",
       title: "Effective Cross-Cultural Communication for Global Teams",
+      calendarTitle: "Cross-Cultural Comm",
       category: "training",
       start: "2026-09-28T14:00:00",
       end: "2026-09-28T15:30:00",
@@ -205,6 +222,7 @@ window.APTARA_CALENDAR_DATA = {
       registrationUrl: "",
       recordingUrl: "",
       featured: false,
+      image: "",
       tags: ["Communication", "Soft Skills", "Leadership", "Global", "Collaboration"]
     }
   ]
