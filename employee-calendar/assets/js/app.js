@@ -121,7 +121,7 @@
   function initHeroPointerLighting() {
     if (prefersReducedMotion() || isTouchDevice()) return;
 
-    const hero = document.getElementById('hero');
+    const hero = document.getElementById('overview') || document.getElementById('hero') || document.querySelector('.hero-section');
     if (!hero) return;
 
     let ticking = false;
