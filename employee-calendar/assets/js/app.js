@@ -332,84 +332,110 @@
     switch (category) {
       case 'training':
         return `
-          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="poster-svg-mesh" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="mesh-train-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0A1B2C" />
-                <stop offset="0.5" stop-color="#145DA0" />
-                <stop offset="1" stop-color="#2E86DE" />
+              <linearGradient id="mesh-train-grad" x1="0" y1="0" x2="600" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#071626" />
+                <stop offset="0.5" stop-color="#0E3D6E" />
+                <stop offset="1" stop-color="#145DA0" />
               </linearGradient>
+              <radialGradient id="train-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(46, 134, 222, 0.3)" />
+                <stop offset="100%" stop-color="transparent" />
+              </radialGradient>
             </defs>
-            <rect width="600" height="240" fill="url(#mesh-train-grad)" />
-            <!-- Connected Matrix Nodes -->
-            <path d="M50 180 L180 80 L320 160 L480 60 L560 120" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
-            <path d="M120 220 L240 120 L380 200 L520 100" stroke="rgba(144, 205, 244, 0.18)" stroke-width="1.5" stroke-dasharray="4 4" />
-            <circle cx="180" cy="80" r="6" fill="#90CDF4" />
-            <circle cx="320" cy="160" r="5" fill="#FFFFFF" />
-            <circle cx="480" cy="60" r="7" fill="#F2B84B" />
-            <!-- Dot Matrix Overlay -->
-            <g opacity="0.12" fill="#FFFFFF">
-              <circle cx="50" cy="40" r="2"/><circle cx="100" cy="40" r="2"/><circle cx="150" cy="40" r="2"/><circle cx="200" cy="40" r="2"/><circle cx="250" cy="40" r="2"/>
-              <circle cx="300" cy="40" r="2"/><circle cx="350" cy="40" r="2"/><circle cx="400" cy="40" r="2"/><circle cx="450" cy="40" r="2"/><circle cx="500" cy="40" r="2"/>
-              <circle cx="50" cy="90" r="2"/><circle cx="100" cy="90" r="2"/><circle cx="150" cy="90" r="2"/><circle cx="200" cy="90" r="2"/><circle cx="250" cy="90" r="2"/>
+            <rect width="600" height="180" fill="url(#mesh-train-grad)" />
+            <circle cx="300" cy="90" r="140" fill="url(#train-glow)" />
+            <circle cx="300" cy="90" r="65" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="300" cy="90" r="110" stroke="rgba(144, 205, 244, 0.15)" stroke-width="1" />
+            <circle cx="300" cy="90" r="155" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="6 6" />
+            <path d="M0 90 L235 90 M365 90 L600 90" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" />
+            <path d="M120 180 L255 90 M345 90 L480 0" stroke="rgba(144, 205, 244, 0.12)" stroke-width="1" stroke-dasharray="3 3" />
+            <g opacity="0.1" fill="#FFFFFF">
+              <circle cx="80" cy="45" r="1.5"/><circle cx="140" cy="45" r="1.5"/><circle cx="200" cy="45" r="1.5"/><circle cx="400" cy="45" r="1.5"/><circle cx="460" cy="45" r="1.5"/><circle cx="520" cy="45" r="1.5"/>
+              <circle cx="80" cy="135" r="1.5"/><circle cx="140" cy="135" r="1.5"/><circle cx="200" cy="135" r="1.5"/><circle cx="400" cy="135" r="1.5"/><circle cx="460" cy="135" r="1.5"/><circle cx="520" cy="135" r="1.5"/>
             </g>
           </svg>
         `;
       case 'engagement':
         return `
-          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="poster-svg-mesh" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="mesh-eng-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0A1B2C" />
-                <stop offset="0.5" stop-color="#6B4C9A" />
-                <stop offset="1" stop-color="#9B72CF" />
+              <linearGradient id="mesh-eng-grad" x1="0" y1="0" x2="600" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#130B21" />
+                <stop offset="0.5" stop-color="#41246F" />
+                <stop offset="1" stop-color="#6B4C9A" />
               </linearGradient>
+              <radialGradient id="eng-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(242, 184, 75, 0.25)" />
+                <stop offset="100%" stop-color="transparent" />
+              </radialGradient>
             </defs>
-            <rect width="600" height="240" fill="url(#mesh-eng-grad)" />
-            <!-- Celebration Burst Geometry -->
-            <circle cx="480" cy="100" r="90" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" stroke-dasharray="6 6" />
-            <circle cx="480" cy="100" r="50" stroke="rgba(242, 184, 75, 0.3)" stroke-width="2" />
-            <path d="M40 160 Q 200 40, 360 140 T 560 60" stroke="rgba(255,255,255,0.22)" stroke-width="2" fill="none" />
-            <circle cx="200" cy="85" r="5" fill="#F2B84B" />
-            <circle cx="360" cy="140" r="6" fill="#FFFFFF" />
-            <circle cx="480" cy="100" r="8" fill="#F2B84B" />
+            <rect width="600" height="180" fill="url(#mesh-eng-grad)" />
+            <circle cx="300" cy="90" r="140" fill="url(#eng-glow)" />
+            <circle cx="300" cy="90" r="65" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="300" cy="90" r="110" stroke="rgba(242, 184, 75, 0.2)" stroke-width="1.2" />
+            <circle cx="300" cy="90" r="155" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="6 6" />
+            <path d="M0 90 L235 90 M365 90 L600 90" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" />
+            <path d="M160 0 L255 90 M345 90 L440 180" stroke="rgba(242, 184, 75, 0.15)" stroke-width="1" stroke-dasharray="3 3" />
+            <g opacity="0.1" fill="#FFFFFF">
+              <circle cx="80" cy="45" r="1.5"/><circle cx="140" cy="45" r="1.5"/><circle cx="200" cy="45" r="1.5"/><circle cx="400" cy="45" r="1.5"/><circle cx="460" cy="45" r="1.5"/><circle cx="520" cy="45" r="1.5"/>
+              <circle cx="80" cy="135" r="1.5"/><circle cx="140" cy="135" r="1.5"/><circle cx="200" cy="135" r="1.5"/><circle cx="400" cy="135" r="1.5"/><circle cx="460" cy="135" r="1.5"/><circle cx="520" cy="135" r="1.5"/>
+            </g>
           </svg>
         `;
       case 'wellness':
         return `
-          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="poster-svg-mesh" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="mesh-well-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#0A1B2C" />
-                <stop offset="0.5" stop-color="#E85D75" />
-                <stop offset="1" stop-color="#F43F5E" />
+              <linearGradient id="mesh-well-grad" x1="0" y1="0" x2="600" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1C0A11" />
+                <stop offset="0.5" stop-color="#781C2D" />
+                <stop offset="1" stop-color="#E85D75" />
               </linearGradient>
+              <radialGradient id="well-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(232, 93, 117, 0.3)" />
+                <stop offset="100%" stop-color="transparent" />
+              </radialGradient>
             </defs>
-            <rect width="600" height="240" fill="url(#mesh-well-grad)" />
-            <!-- Pulse Frequency Wave -->
-            <path d="M30 140 L180 140 L210 70 L240 190 L270 110 L300 140 L570 140" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-            <circle cx="210" cy="70" r="6" fill="#FFFFFF" />
-            <circle cx="240" cy="190" r="5" fill="#F2B84B" />
-            <circle cx="270" cy="110" r="6" fill="#90CDF4" />
+            <rect width="600" height="180" fill="url(#mesh-well-grad)" />
+            <circle cx="300" cy="90" r="140" fill="url(#well-glow)" />
+            <circle cx="300" cy="90" r="65" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="300" cy="90" r="110" stroke="rgba(255,255,255,0.12)" stroke-width="1" />
+            <circle cx="300" cy="90" r="155" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="6 6" />
+            <path d="M0 90 L235 90 M365 90 L600 90" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" />
+            <path d="M120 0 L240 90 M360 90 L480 180" stroke="rgba(232, 93, 117, 0.2)" stroke-width="1" stroke-dasharray="3 3" />
+            <g opacity="0.1" fill="#FFFFFF">
+              <circle cx="80" cy="45" r="1.5"/><circle cx="140" cy="45" r="1.5"/><circle cx="200" cy="45" r="1.5"/><circle cx="400" cy="45" r="1.5"/><circle cx="460" cy="45" r="1.5"/><circle cx="520" cy="45" r="1.5"/>
+              <circle cx="80" cy="135" r="1.5"/><circle cx="140" cy="135" r="1.5"/><circle cx="200" cy="135" r="1.5"/><circle cx="400" cy="135" r="1.5"/><circle cx="460" cy="135" r="1.5"/><circle cx="520" cy="135" r="1.5"/>
+            </g>
           </svg>
         `;
       case 'townhall':
       default:
         return `
-          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg class="poster-svg-mesh" viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="mesh-town-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
-                <stop stop-color="#071626" />
-                <stop offset="0.6" stop-color="#102A43" />
+              <linearGradient id="mesh-town-grad" x1="0" y1="0" x2="600" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#051221" />
+                <stop offset="0.55" stop-color="#0C2540" />
                 <stop offset="1" stop-color="#145DA0" />
               </linearGradient>
+              <radialGradient id="town-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(242, 184, 75, 0.25)" />
+                <stop offset="100%" stop-color="transparent" />
+              </radialGradient>
             </defs>
-            <rect width="600" height="240" fill="url(#mesh-town-grad)" />
-            <!-- Spotlight Arc Lines -->
-            <path d="M60 220 L300 30 L540 220" stroke="rgba(242, 184, 75, 0.28)" stroke-width="2" />
-            <circle cx="300" cy="30" r="8" fill="#F2B84B" />
-            <circle cx="180" cy="125" r="5" fill="#90CDF4" />
-            <circle cx="420" cy="125" r="5" fill="#FFFFFF" />
+            <rect width="600" height="180" fill="url(#mesh-town-grad)" />
+            <circle cx="300" cy="90" r="140" fill="url(#town-glow)" />
+            <circle cx="300" cy="90" r="65" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="300" cy="90" r="110" stroke="rgba(242, 184, 75, 0.25)" stroke-width="1.2" />
+            <circle cx="300" cy="90" r="155" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="6 6" />
+            <path d="M0 90 L235 90 M365 90 L600 90" stroke="rgba(255,255,255,0.15)" stroke-width="1.2" />
+            <g opacity="0.1" fill="#FFFFFF">
+              <circle cx="80" cy="45" r="1.5"/><circle cx="140" cy="45" r="1.5"/><circle cx="200" cy="45" r="1.5"/><circle cx="400" cy="45" r="1.5"/><circle cx="460" cy="45" r="1.5"/><circle cx="520" cy="45" r="1.5"/>
+              <circle cx="80" cy="135" r="1.5"/><circle cx="140" cy="135" r="1.5"/><circle cx="200" cy="135" r="1.5"/><circle cx="400" cy="135" r="1.5"/><circle cx="460" cy="135" r="1.5"/><circle cx="520" cy="135" r="1.5"/>
+            </g>
           </svg>
         `;
     }
@@ -445,16 +471,19 @@
       <div class="featured-poster-card" style="--poster-cat-bg: ${primCat.bg}; --poster-cat-color: ${primCat.color}; --poster-cat-border: ${primCat.border};">
         <div class="featured-poster-artwork">
           ${primSvgArtwork}
+          <div class="poster-glass-emblem">
+            <i data-lucide="${primCat.icon || 'sparkles'}" style="width: 26px; height: 26px;"></i>
+          </div>
         </div>
 
         <div class="featured-poster-body">
           <div class="featured-poster-top">
-            <span class="featured-poster-cat">
+            <span class="featured-poster-cat" style="background: ${primCat.bg}; color: ${primCat.color}; border: 1px solid ${primCat.border};">
               <i data-lucide="${primCat.icon}" style="width: 12px; height: 12px;"></i>
               ${primCat.name}
             </span>
             <span class="featured-poster-date-badge">
-              <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--color-amber);"></i>
+              <i data-lucide="calendar" style="width: 13px; height: 13px;"></i>
               ${primDayNum} ${primMonthStr} • ${primTimeStr}
             </span>
           </div>
