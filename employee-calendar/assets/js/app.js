@@ -1174,33 +1174,71 @@
   }
 
   /**
-   * Smooth Anchor Navigation with Active Section Highlighting
+   * Smooth Anchor Navigation with Precise Header Height Offset & Active Section Highlighting
    */
   function initSmoothScroll() {
-    const links = document.querySelectorAll('.nav-link');
-    const sections = ['overview', 'highlights', 'calendar', 'agenda', 'contact'];
+    const navLinks = document.querySelectorAll('.nav-link');
+    const allAnchorLinks = document.querySelectorAll('a[href^="#"]');
 
-    window.addEventListener('scroll', () => {
-      let currentSection = '';
-      sections.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 120 && rect.bottom >= 120) {
-            currentSection = id;
+    // Handle click on all anchor links with pixel-perfect header offset
+    allAnchorLinks.forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const targetId = anchor.getAttribute('href');
+        if (!targetId || targetId === '#' || targetId.startsWith('#event-')) return;
+        
+        const targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          const header = document.querySelector('.site-header');
+          const headerOffset = header ? header.offsetHeight + 18 : 75;
+          const elementPosition = targetEl.getBoundingClientRect().top + window.pageYOffset;
+          const offsetPosition = Math.max(0, elementPosition - headerOffset);
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, null, targetId);
           }
         }
       });
+    });
 
-      links.forEach(link => {
+    // Dynamic Active Section Tracker on Scroll
+    const updateActiveNav = () => {
+      const sections = ['overview', 'highlights', 'calendar', 'agenda', 'contact'];
+      const header = document.querySelector('.site-header');
+      const headerOffset = header ? header.offsetHeight + 35 : 95;
+      let currentSection = '';
+
+      if (window.scrollY < 200) {
+        currentSection = 'overview';
+      } else {
+        sections.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            if (rect.top <= headerOffset && rect.bottom > headerOffset) {
+              currentSection = id;
+            }
+          }
+        });
+      }
+
+      navLinks.forEach(link => {
         const href = link.getAttribute('href');
         if (href === `#${currentSection}`) {
           link.classList.add('active');
-        } else if (currentSection) {
+        } else {
           link.classList.remove('active');
         }
       });
-    }, { passive: true });
+    };
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
   }
 
   /**

@@ -105,7 +105,13 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 75px;
   font-size: 16px;
+}
+
+/* Offset for sticky navigation header */
+section[id], footer[id], #hero, #overview, #highlights, #calendar, #agenda, #contact {
+  scroll-margin-top: 75px;
 }
 
 body {
