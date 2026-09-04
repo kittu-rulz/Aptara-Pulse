@@ -34,16 +34,27 @@
     </div>
   </header>
 
-  <!-- 2. Asymmetric Two-Column Hero with Restrained Aptara Pulse Motif -->
+  <!-- 2. Asymmetric Two-Column Hero with Signature Pulse Motif & Pointer Ambient Lighting -->
   <section class="hero-section" id="hero" aria-labelledby="hero-title">
     
-    <!-- Concentric Pulse Rings & Editorial Line Background -->
+    <!-- Pointer-Responsive Ambient Lighting Layer (Desktop only) -->
+    <div class="hero-ambient-glow" aria-hidden="true"></div>
+
+    <!-- Signature Aptara Pulse Concentric Rings & Fine Connected Paths -->
     <div class="hero-pulse-motif" aria-hidden="true">
-      <svg class="pulse-svg" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="400" cy="400" r="140" stroke="rgba(20, 93, 160, 0.18)" stroke-width="1.5" stroke-dasharray="4 4" />
-        <circle cx="400" cy="400" r="230" stroke="rgba(107, 76, 154, 0.14)" stroke-width="1.5" />
-        <circle cx="400" cy="400" r="320" stroke="rgba(20, 93, 160, 0.08)" stroke-width="1" />
-        <circle cx="400" cy="400" r="390" stroke="rgba(242, 184, 75, 0.12)" stroke-width="1" stroke-dasharray="6 6" />
+      <svg class="pulse-svg" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Concentric Pulse Rings -->
+        <circle cx="450" cy="450" r="160" stroke="rgba(20, 93, 160, 0.22)" stroke-width="1.5" stroke-dasharray="4 4" class="ring-pulse-1" />
+        <circle cx="450" cy="450" r="260" stroke="rgba(107, 76, 154, 0.18)" stroke-width="1.5" class="ring-pulse-2" />
+        <circle cx="450" cy="450" r="360" stroke="rgba(20, 93, 160, 0.12)" stroke-width="1.2" stroke-dasharray="6 6" class="ring-pulse-3" />
+        <circle cx="450" cy="450" r="430" stroke="rgba(242, 184, 75, 0.14)" stroke-width="1" />
+
+        <!-- Connected Paths & Soft Glowing Nodes -->
+        <path d="M120 450 L380 450 L450 380 L720 380" stroke="rgba(144, 205, 244, 0.18)" stroke-width="1.5" />
+        <path d="M280 620 L450 450 L640 450 L750 560" stroke="rgba(155, 114, 207, 0.15)" stroke-width="1.5" stroke-dasharray="3 3" />
+        <circle cx="380" cy="450" r="4" fill="var(--color-blue)" />
+        <circle cx="450" cy="380" r="4.5" fill="var(--color-amber)" />
+        <circle cx="640" cy="450" r="4" fill="var(--color-purple)" />
       </svg>
     </div>
 
@@ -72,16 +83,22 @@
           <div class="hero-actions">
             <a href="#calendar" class="btn-hero-primary" role="button">
               <i data-lucide="calendar-search" style="width: 16px; height: 16px;" aria-hidden="true"></i>
-              View Calendar
+              <span>View Calendar</span>
             </a>
             <a href="#highlights" class="btn-hero-secondary" role="button">
               <i data-lucide="sparkles" style="width: 16px; height: 16px;" aria-hidden="true"></i>
-              Explore Highlights
+              <span>Explore Highlights</span>
             </a>
+          </div>
+
+          <!-- Dynamic Monthly Experiences Counter Indicator -->
+          <div class="hero-experience-counter" id="hero-exp-counter">
+            <i data-lucide="sparkles" style="width: 14px; height: 14px; color: var(--color-amber);" aria-hidden="true"></i>
+            <span id="hero-exp-count-text">8 experiences scheduled this month</span>
           </div>
         </div>
 
-        <!-- Right Side: Dynamic "Next Up" Event Card -->
+        <!-- Right Side: Dynamic "Next Up / Happening Today" Glass Card -->
         <div class="hero-right">
           <div class="next-up-wrapper" id="hero-next-up-container" aria-live="polite">
             <!-- Rendered dynamically by app.js -->
@@ -92,52 +109,80 @@
     </div>
   </section>
 
-  <!-- 3. "At a Glance" Statistics Cards -->
+  <!-- 3. "At a Glance" Statistics Section with Connecting Pulse Track -->
   <section class="stats-section" id="overview" aria-label="Summary Statistics">
-    <div class="container">
+    <div class="container" style="position: relative;">
+      
+      <!-- Thin Connecting Pulse Line Behind Cards -->
+      <div class="stats-pulse-track" aria-hidden="true"></div>
+
       <div class="stats-grid">
         
         <!-- Total Events -->
         <div class="stat-card" data-filter="all" tabindex="0" role="button" aria-label="Filter all sessions" style="--stat-accent: var(--color-blue); --stat-bg: #EDF5FC;">
+          <div class="stat-top">
+            <div class="stat-icon-wrapper" aria-hidden="true">
+              <i data-lucide="calendar-check" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span class="stat-pct-badge" id="stat-pct-total">100% of Month</span>
+          </div>
           <div class="stat-info">
             <span class="stat-number" id="stat-val-total">0</span>
             <span class="stat-label">Total Sessions Scheduled</span>
           </div>
-          <div class="stat-icon-wrapper" aria-hidden="true">
-            <i data-lucide="calendar-check" style="width: 22px; height: 22px;"></i>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill" style="width: 100%; background: var(--color-blue);"></div>
           </div>
         </div>
 
         <!-- Training & Workshops -->
         <div class="stat-card" data-filter="training" tabindex="0" role="button" aria-label="Filter training workshops" style="--stat-accent: var(--cat-training-border); --stat-bg: var(--cat-training-bg);">
+          <div class="stat-top">
+            <div class="stat-icon-wrapper" aria-hidden="true">
+              <i data-lucide="book-open" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span class="stat-pct-badge" id="stat-pct-training">38% Share</span>
+          </div>
           <div class="stat-info">
             <span class="stat-number" id="stat-val-training">0</span>
             <span class="stat-label">Training & Skill Labs</span>
           </div>
-          <div class="stat-icon-wrapper" aria-hidden="true">
-            <i data-lucide="book-open" style="width: 22px; height: 22px;"></i>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill" id="stat-bar-training" style="width: 38%; background: var(--cat-training-border);"></div>
           </div>
         </div>
 
         <!-- Engagement & Fun -->
         <div class="stat-card" data-filter="engagement" tabindex="0" role="button" aria-label="Filter engagement sessions" style="--stat-accent: var(--cat-engagement-border); --stat-bg: var(--cat-engagement-bg);">
+          <div class="stat-top">
+            <div class="stat-icon-wrapper" aria-hidden="true">
+              <i data-lucide="party-popper" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span class="stat-pct-badge" id="stat-pct-engagement">12% Share</span>
+          </div>
           <div class="stat-info">
             <span class="stat-number" id="stat-val-engagement">0</span>
             <span class="stat-label">Engagement & Social</span>
           </div>
-          <div class="stat-icon-wrapper" aria-hidden="true">
-            <i data-lucide="party-popper" style="width: 22px; height: 22px;"></i>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill" id="stat-bar-engagement" style="width: 12%; background: var(--cat-engagement-border);"></div>
           </div>
         </div>
 
         <!-- Wellness & Challenges -->
         <div class="stat-card" data-filter="wellness" tabindex="0" role="button" aria-label="Filter wellness sessions" style="--stat-accent: var(--cat-wellness-border); --stat-bg: var(--cat-wellness-bg);">
+          <div class="stat-top">
+            <div class="stat-icon-wrapper" aria-hidden="true">
+              <i data-lucide="heart-pulse" style="width: 20px; height: 20px;"></i>
+            </div>
+            <span class="stat-pct-badge" id="stat-pct-wellness">25% Share</span>
+          </div>
           <div class="stat-info">
             <span class="stat-number" id="stat-val-wellness">0</span>
             <span class="stat-label">Wellness & Challenges</span>
           </div>
-          <div class="stat-icon-wrapper" aria-hidden="true">
-            <i data-lucide="heart-pulse" style="width: 22px; height: 22px;"></i>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill" id="stat-bar-wellness" style="width: 25%; background: var(--cat-wellness-border);"></div>
           </div>
         </div>
 
@@ -145,129 +190,135 @@
     </div>
   </section>
 
-  <!-- 4. Featured Events (Highlights) Section — Editorial Composition -->
-  <section class="container highlights-section" id="highlights" aria-labelledby="highlights-heading">
-    <div class="section-header">
-      <div class="section-title-group">
-        <div class="section-pretitle">
-          <span class="section-pretitle-line"></span>
-          <span>Featured Spotlight</span>
+  <!-- 4. Featured Events (Spotlight) — Dominant Poster + 3 Supporting Cards -->
+  <section class="highlights-section" id="highlights" aria-labelledby="highlights-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-group">
+          <div class="section-pretitle">
+            <span class="section-pretitle-line"></span>
+            <span>Featured Spotlight</span>
+          </div>
+          <h2 id="highlights-heading">
+            <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--color-amber);" aria-hidden="true"></i>
+            Monthly Highlights & Priority Sessions
+          </h2>
+          <p>Curated high-impact workshops, global town halls, and engagement initiatives you shouldn't miss.</p>
         </div>
-        <h2 id="highlights-heading">
-          <i data-lucide="sparkles" style="width: 20px; height: 20px; color: var(--color-amber);" aria-hidden="true"></i>
-          Monthly Highlights & Priority Sessions
-        </h2>
-        <p>Curated high-impact workshops, global town halls, and engagement initiatives you shouldn't miss.</p>
-      </div>
-    </div>
-
-    <!-- Editorial Featured Composition: 1 Primary Card (50%) + 3 Secondary Cards -->
-    <div class="featured-editorial-grid" id="featured-cards-grid" role="region" aria-label="Featured events showcase">
-      <!-- Populated dynamically by app.js from calendar-data.js -->
-    </div>
-  </section>
-
-  <!-- 5. Full-Width Interactive Monthly Calendar with Horizontal Filter Toolbar -->
-  <section class="container calendar-section" id="calendar" aria-labelledby="calendar-heading">
-    <div class="section-header">
-      <div class="section-title-group">
-        <div class="section-pretitle">
-          <span class="section-pretitle-line"></span>
-          <span>Interactive Schedule</span>
-        </div>
-        <h2 id="calendar-heading">
-          <i data-lucide="calendar" style="width: 20px; height: 20px; color: var(--color-blue);" aria-hidden="true"></i>
-          Training & Engagement Schedule
-        </h2>
-        <p>Explore all planned activities with real-time multi-category filtering, instant search, and calendar views.</p>
-      </div>
-    </div>
-
-    <!-- Compact Horizontal Filter Toolbar -->
-    <div class="calendar-toolbar-box" id="calendar-toolbar" role="search" aria-label="Event search and filter toolbar">
-      
-      <!-- Search Box with Clear Icon -->
-      <div class="toolbar-search-wrapper">
-        <i data-lucide="search" class="toolbar-search-icon" aria-hidden="true"></i>
-        <input 
-          type="text" 
-          id="event-search-input" 
-          class="toolbar-search-input" 
-          placeholder="Search topic, trainer, keyword..." 
-          aria-label="Search events" 
-        />
-        <button id="btn-search-clear" class="toolbar-search-clear" aria-label="Clear search query" style="display: none;">
-          <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-        </button>
       </div>
 
-      <!-- Category Filter Chips -->
-      <div class="toolbar-filters-scroll" id="category-filters-container" role="group" aria-label="Category filter chips">
-        <!-- Category buttons rendered dynamically -->
-      </div>
-
-      <!-- Quick Toggles & Reset -->
-      <div class="toolbar-actions">
-        <button id="toggle-upcoming-btn" class="toolbar-toggle-chip" aria-pressed="false" title="Show only upcoming events">
-          <i data-lucide="calendar-arrow-up" style="width: 13px; height: 13px;"></i>
-          <span>Upcoming Only</span>
-        </button>
-
-        <button id="btn-clear-filters" class="toolbar-clear-btn" title="Reset all filters and search" style="display: none;">
-          <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
-          <span>Clear All</span>
-        </button>
-
-        <!-- Live Results Counter Badge -->
-        <span id="search-result-counter" class="toolbar-counter-badge" aria-live="polite">8 Sessions</span>
-      </div>
-
-    </div>
-
-    <!-- Full-Width Calendar Card -->
-    <div class="calendar-fullwidth-card" aria-label="Interactive Calendar View">
-      <div id="filter-progress-bar" class="filter-progress-bar" aria-hidden="true"></div>
-      <div id="fullcalendar-mount"></div>
-      
-      <!-- Empty State Container -->
-      <div id="calendar-empty-state" class="empty-state-box" style="display: none;">
-        <div class="empty-state-motif" aria-hidden="true">
-          <div class="empty-pulse-ring"></div>
-          <i data-lucide="calendar-x" style="width: 28px; height: 28px;"></i>
-        </div>
-        <h4 class="empty-state-title">No Matching Events Found</h4>
-        <p class="empty-state-desc">We couldn't find any events matching your selected categories or search terms. Try loosening your filter criteria.</p>
-        <button id="btn-empty-reset" class="btn-card-action btn-card-primary">
-          <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
-          Reset All Filters
-        </button>
+      <!-- Editorial Featured Composition: 1 Dominant Poster (50%) + 3 Supporting Cards -->
+      <div class="featured-editorial-grid" id="featured-cards-grid" role="region" aria-label="Featured events showcase">
+        <!-- Populated dynamically by app.js from calendar-data.js -->
       </div>
     </div>
   </section>
 
-  <!-- 6. Full-Width Chronological Upcoming Agenda Timeline -->
-  <section class="container agenda-section" id="agenda" aria-labelledby="agenda-heading">
-    <div class="section-header">
-      <div class="section-title-group">
-        <div class="section-pretitle">
-          <span class="section-pretitle-line"></span>
-          <span>Chronological Timeline</span>
+  <!-- 5. Full-Width Interactive Calendar with Pale-Blue Editorial Canvas & Filter Toolbar -->
+  <section class="calendar-section" id="calendar" aria-labelledby="calendar-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-group">
+          <div class="section-pretitle">
+            <span class="section-pretitle-line"></span>
+            <span>Interactive Schedule</span>
+          </div>
+          <h2 id="calendar-heading">
+            <i data-lucide="calendar" style="width: 20px; height: 20px; color: var(--color-blue);" aria-hidden="true"></i>
+            Training & Engagement Schedule
+          </h2>
+          <p>Explore all planned activities with real-time multi-category filtering, instant search, and calendar views.</p>
         </div>
-        <h2 id="agenda-heading">
-          <i data-lucide="list-ordered" style="width: 20px; height: 20px; color: var(--color-blue);" aria-hidden="true"></i>
-          Upcoming Agenda & Session Schedule
-        </h2>
-        <p>Comprehensive date-by-date schedule with instant calendar invite downloads.</p>
       </div>
 
-      <div class="agenda-header-meta">
-        <span id="agenda-count-badge" class="agenda-counter-pill">8 events scheduled</span>
+      <!-- Compact Horizontal Filter Toolbar -->
+      <div class="calendar-toolbar-box" id="calendar-toolbar" role="search" aria-label="Event search and filter toolbar">
+        
+        <!-- Search Box with Clear Icon -->
+        <div class="toolbar-search-wrapper">
+          <i data-lucide="search" class="toolbar-search-icon" aria-hidden="true"></i>
+          <input 
+            type="text" 
+            id="event-search-input" 
+            class="toolbar-search-input" 
+            placeholder="Search topic, trainer, keyword..." 
+            aria-label="Search events" 
+          />
+          <button id="btn-search-clear" class="toolbar-search-clear" aria-label="Clear search query" style="display: none;">
+            <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+
+        <!-- Category Filter Chips -->
+        <div class="toolbar-filters-scroll" id="category-filters-container" role="group" aria-label="Category filter chips">
+          <!-- Category buttons rendered dynamically -->
+        </div>
+
+        <!-- Quick Toggles & Reset -->
+        <div class="toolbar-actions">
+          <button id="toggle-upcoming-btn" class="toolbar-toggle-chip" aria-pressed="false" title="Show only upcoming events">
+            <i data-lucide="calendar-arrow-up" style="width: 13px; height: 13px;"></i>
+            <span>Upcoming Only</span>
+          </button>
+
+          <button id="btn-clear-filters" class="toolbar-clear-btn" title="Reset all filters and search" style="display: none;">
+            <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+            <span>Clear All</span>
+          </button>
+
+          <!-- Live Results Counter Badge -->
+          <span id="search-result-counter" class="toolbar-counter-badge" aria-live="polite">8 Sessions</span>
+        </div>
+
+      </div>
+
+      <!-- Full-Width Calendar Card -->
+      <div class="calendar-fullwidth-card" aria-label="Interactive Calendar View">
+        <div id="filter-progress-bar" class="filter-progress-bar" aria-hidden="true"></div>
+        <div id="fullcalendar-mount"></div>
+        
+        <!-- Empty State Container -->
+        <div id="calendar-empty-state" class="empty-state-box" style="display: none;">
+          <div class="empty-state-motif" aria-hidden="true">
+            <div class="empty-pulse-ring"></div>
+            <i data-lucide="calendar-x" style="width: 28px; height: 28px;"></i>
+          </div>
+          <h4 class="empty-state-title">No Matching Events Found</h4>
+          <p class="empty-state-desc">We couldn't find any events matching your selected categories or search terms. Try loosening your filter criteria.</p>
+          <button id="btn-empty-reset" class="btn-card-action btn-card-primary">
+            <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+            Reset All Filters
+          </button>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Full-Width Timeline Container -->
-    <div class="agenda-timeline-wrapper" id="agenda-timeline-container" role="list" aria-label="Chronological event list">
-      <!-- Injected dynamically by app.js -->
+  <!-- 6. Full-Width Chronological Pulse Timeline Agenda with Scroll Illumination -->
+  <section class="agenda-section" id="agenda" aria-labelledby="agenda-heading">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title-group">
+          <div class="section-pretitle">
+            <span class="section-pretitle-line"></span>
+            <span>Chronological Timeline</span>
+          </div>
+          <h2 id="agenda-heading">
+            <i data-lucide="list-ordered" style="width: 20px; height: 20px; color: var(--color-blue);" aria-hidden="true"></i>
+            Upcoming Agenda & Session Schedule
+          </h2>
+          <p>Comprehensive date-by-date schedule with progressive timeline illumination and instant calendar invites.</p>
+        </div>
+
+        <div class="agenda-header-meta">
+          <span id="agenda-count-badge" class="agenda-counter-pill">8 events scheduled</span>
+        </div>
+      </div>
+
+      <!-- Full-Width Timeline Container with Vertical Pulse Rail -->
+      <div class="agenda-timeline-wrapper" id="agenda-timeline-container" role="list" aria-label="Chronological event list">
+        <!-- Injected dynamically by app.js -->
+      </div>
     </div>
   </section>
 
@@ -338,24 +389,24 @@
         <div class="modal-footer-left">
           <button id="modal-btn-copy-link" class="btn-card-action btn-card-outline" title="Copy direct share link">
             <i data-lucide="link" style="width: 14px; height: 14px;"></i>
-            Copy Link
+            <span>Copy Link</span>
           </button>
           
           <button id="modal-btn-ics" class="btn-card-action btn-card-outline" title="Download .ics calendar invite">
             <i data-lucide="calendar-plus" style="width: 14px; height: 14px;"></i>
-            Add to Calendar (.ics)
+            <span>Add to Calendar (.ics)</span>
           </button>
         </div>
 
         <div class="modal-footer-right">
           <a id="modal-btn-reg-link" href="#" target="_blank" rel="noopener" class="btn-card-action btn-card-outline" style="display: none;">
             <i data-lucide="clipboard-check" style="width: 14px; height: 14px;"></i>
-            Register
+            <span>Register</span>
           </a>
 
           <a id="modal-btn-join-link" href="#" target="_blank" rel="noopener" class="btn-card-action btn-card-primary" style="display: none;">
             <i data-lucide="video" style="width: 14px; height: 14px;"></i>
-            Join Meeting
+            <span>Join Meeting</span>
           </a>
         </div>
       </div>

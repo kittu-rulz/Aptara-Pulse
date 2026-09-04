@@ -6,7 +6,7 @@
  */
 
 window.APTARA_CALENDAR_DATA = {
-  version: "2.0.0",
+  version: "2.1.0",
   lastUpdated: "2026-09-01T09:00:00Z",
   organization: {
     name: "Aptara",
@@ -16,6 +16,14 @@ window.APTARA_CALENDAR_DATA = {
     tagline: "One place to learn, connect and celebrate at Aptara.",
     monthLabel: "September 2026 Edition",
     monthlyMessage: "Welcome to September! Discover this month's curated technical workshops, wellness sessions, global town halls, and engagement challenges designed to help you learn, connect, and celebrate."
+  },
+  theme: {
+    eyebrow: "SEPTEMBER 2026 EDITION",
+    tagline: "Learn. Connect. Celebrate.",
+    accent: "#145DA0",
+    secondaryAccent: "#6B4C9A",
+    motif: "connected-pulse",
+    featuredArtwork: "genai-mesh"
   },
   categories: [
     {

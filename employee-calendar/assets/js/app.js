@@ -1,5 +1,5 @@
 /**
- * Aptara Pulse Employee Calendar - Core Interactive Controller (V2.0 Editorial Edition)
+ * Aptara Pulse Employee Calendar - Core Interactive Controller (V2.1 Signature Visual Edition)
  * Zero runtime external dependencies • 100% Client-Side
  */
 
@@ -17,6 +17,7 @@
 
   const calendarData = window.APTARA_CALENDAR_DATA || {
     organization: {},
+    theme: {},
     categories: [],
     events: []
   };
@@ -29,21 +30,30 @@
   };
 
   /**
+   * Check Touch Device
+   */
+  const isTouchDevice = () => {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  };
+
+  /**
    * DOM Ready Initializer
    */
   document.addEventListener('DOMContentLoaded', () => {
     initHeaderScroll();
     initLucideIcons();
-    initHeroData();
+    initThemeAndHeroData();
+    initHeroPointerLighting();
     initNextUpEvent();
     initStatsCards();
-    initFeaturedEditorial();
+    initFeaturedEditorialShowcase();
     initSearchEngine();
     initCategoryFilters();
     initUpcomingToggle();
     initClearFiltersAction();
     initCalendarView();
     initTimelineAgenda();
+    initTimelineScrollObserver();
     initModalControls();
     initBackToTop();
     initSmoothScroll();
@@ -77,25 +87,67 @@
   }
 
   /**
-   * Populate Hero Text & Metadata
+   * Populate Theme, Hero Text & Experience Counter
    */
-  function initHeroData() {
+  function initThemeAndHeroData() {
     const org = calendarData.organization || {};
+    const theme = calendarData.theme || {};
+    const events = calendarData.events || [];
+
     const heroTitle = document.getElementById('hero-title');
     const heroStatement = document.getElementById('hero-statement');
     const heroMonth = document.getElementById('hero-month-badge');
     const heroMessage = document.getElementById('hero-message');
+    const expCounterText = document.getElementById('hero-exp-count-text');
 
     if (heroTitle && org.portalTitle) heroTitle.textContent = org.portalTitle;
-    if (heroStatement && org.statement) heroStatement.textContent = org.statement;
-    if (heroMonth && org.monthLabel) heroMonth.textContent = org.monthLabel;
+    if (heroStatement) {
+      heroStatement.textContent = theme.tagline || org.statement || "Learn. Connect. Celebrate.";
+    }
+    if (heroMonth) {
+      heroMonth.textContent = theme.eyebrow || org.monthLabel || "September 2026 Edition";
+    }
     if (heroMessage && (org.descriptor || org.monthlyMessage)) {
       heroMessage.textContent = org.descriptor || org.monthlyMessage;
+    }
+    if (expCounterText) {
+      expCounterText.textContent = `${events.length} experiences scheduled this month`;
     }
   }
 
   /**
-   * Dynamic "Next Up" Event Evaluator & Panel Renderer
+   * Pointer-Responsive Ambient Lighting (Desktop only, subtle & restrained)
+   */
+  function initHeroPointerLighting() {
+    if (prefersReducedMotion() || isTouchDevice()) return;
+
+    const hero = document.getElementById('hero');
+    if (!hero) return;
+
+    let ticking = false;
+
+    hero.addEventListener('mousemove', (e) => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const rect = hero.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          hero.style.setProperty('--mouse-x', `${x}px`);
+          hero.style.setProperty('--mouse-y', `${y}px`);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    hero.addEventListener('mouseleave', () => {
+      hero.style.setProperty('--mouse-x', '50%');
+      hero.style.setProperty('--mouse-y', '50%');
+    });
+  }
+
+  /**
+   * Dynamic "Next Up / Happening Today" Glass Panel Evaluator
    */
   function initNextUpEvent() {
     const container = document.getElementById('hero-next-up-container');
@@ -115,20 +167,13 @@
       return;
     }
 
-    // Determine current/simulated reference date
-    const now = new Date();
-    // Reference date fallback for September 2026 if running outside target month
     const refYear = 2026;
     const refMonth = 8; // September (0-indexed)
-    
-    // Sort events chronologically
     const sorted = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
 
-    // Find next upcoming event (or today's event)
     let nextEvent = null;
     let isToday = false;
 
-    // Check if real date is in Sep 2026, otherwise simulate from Sep 04, 2026
     let testDate = new Date();
     if (testDate.getFullYear() !== refYear || testDate.getMonth() !== refMonth) {
       testDate = new Date('2026-09-04T09:00:00');
@@ -149,7 +194,7 @@
     }
 
     if (!nextEvent) {
-      nextEvent = sorted[0]; // fallback to first session of the month
+      nextEvent = sorted[0];
     }
 
     const cat = getCategoryMeta(nextEvent.category);
@@ -194,7 +239,6 @@
       </div>
     `;
 
-    // Wire action button
     const actionBtn = container.querySelector('.btn-next-up-action');
     if (actionBtn) {
       actionBtn.addEventListener('click', () => openEventModal(nextEvent.id));
@@ -204,24 +248,46 @@
   }
 
   /**
-   * Initialize "At a Glance" Statistics Cards
+   * Initialize "At a Glance" Statistics Cards with Progress & Percentages
    */
   function initStatsCards() {
     const events = calendarData.events || [];
-    const totalCount = events.length;
+    const totalCount = events.length || 1;
     const trainingCount = events.filter(e => e.category === 'training').length;
     const engagementCount = events.filter(e => e.category === 'engagement').length;
     const wellnessCount = events.filter(e => e.category === 'wellness').length;
 
-    animateCountUp('stat-val-total', totalCount);
+    const trainingPct = Math.round((trainingCount / totalCount) * 100);
+    const engagementPct = Math.round((engagementCount / totalCount) * 100);
+    const wellnessPct = Math.round((wellnessCount / totalCount) * 100);
+
+    animateCountUp('stat-val-total', events.length);
     animateCountUp('stat-val-training', trainingCount);
     animateCountUp('stat-val-engagement', engagementCount);
     animateCountUp('stat-val-wellness', wellnessCount);
+
+    const pctTrainingEl = document.getElementById('stat-pct-training');
+    const pctEngagementEl = document.getElementById('stat-pct-engagement');
+    const pctWellnessEl = document.getElementById('stat-pct-wellness');
+
+    if (pctTrainingEl) pctTrainingEl.textContent = `${trainingPct}% of Month`;
+    if (pctEngagementEl) pctEngagementEl.textContent = `${engagementPct}% of Month`;
+    if (pctWellnessEl) pctWellnessEl.textContent = `${wellnessPct}% of Month`;
+
+    const barTraining = document.getElementById('stat-bar-training');
+    const barEngagement = document.getElementById('stat-bar-engagement');
+    const barWellness = document.getElementById('stat-bar-wellness');
+
+    if (barTraining) barTraining.style.width = `${trainingPct}%`;
+    if (barEngagement) barEngagement.style.width = `${engagementPct}%`;
+    if (barWellness) barWellness.style.width = `${wellnessPct}%`;
 
     document.querySelectorAll('.stat-card').forEach(card => {
       card.addEventListener('click', () => {
         const filterVal = card.getAttribute('data-filter');
         if (filterVal) {
+          document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-stat-filter'));
+          card.classList.add('active-stat-filter');
           applyCategoryFilter(filterVal);
           const calEl = document.getElementById('calendar');
           if (calEl) calEl.scrollIntoView({ behavior: 'smooth' });
@@ -260,9 +326,99 @@
   }
 
   /**
-   * Editorial Featured Showcase (1 Primary Card + 3 Secondary Cards)
+   * Data-Driven Category SVG Artwork Mesh Generator for Featured Poster
    */
-  function initFeaturedEditorial() {
+  function getCategorySvgArtwork(category) {
+    switch (category) {
+      case 'training':
+        return `
+          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mesh-train-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A1B2C" />
+                <stop offset="0.5" stop-color="#145DA0" />
+                <stop offset="1" stop-color="#2E86DE" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="240" fill="url(#mesh-train-grad)" />
+            <!-- Connected Matrix Nodes -->
+            <path d="M50 180 L180 80 L320 160 L480 60 L560 120" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+            <path d="M120 220 L240 120 L380 200 L520 100" stroke="rgba(144, 205, 244, 0.18)" stroke-width="1.5" stroke-dasharray="4 4" />
+            <circle cx="180" cy="80" r="6" fill="#90CDF4" />
+            <circle cx="320" cy="160" r="5" fill="#FFFFFF" />
+            <circle cx="480" cy="60" r="7" fill="#F2B84B" />
+            <!-- Dot Matrix Overlay -->
+            <g opacity="0.12" fill="#FFFFFF">
+              <circle cx="50" cy="40" r="2"/><circle cx="100" cy="40" r="2"/><circle cx="150" cy="40" r="2"/><circle cx="200" cy="40" r="2"/><circle cx="250" cy="40" r="2"/>
+              <circle cx="300" cy="40" r="2"/><circle cx="350" cy="40" r="2"/><circle cx="400" cy="40" r="2"/><circle cx="450" cy="40" r="2"/><circle cx="500" cy="40" r="2"/>
+              <circle cx="50" cy="90" r="2"/><circle cx="100" cy="90" r="2"/><circle cx="150" cy="90" r="2"/><circle cx="200" cy="90" r="2"/><circle cx="250" cy="90" r="2"/>
+            </g>
+          </svg>
+        `;
+      case 'engagement':
+        return `
+          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mesh-eng-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A1B2C" />
+                <stop offset="0.5" stop-color="#6B4C9A" />
+                <stop offset="1" stop-color="#9B72CF" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="240" fill="url(#mesh-eng-grad)" />
+            <!-- Celebration Burst Geometry -->
+            <circle cx="480" cy="100" r="90" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" stroke-dasharray="6 6" />
+            <circle cx="480" cy="100" r="50" stroke="rgba(242, 184, 75, 0.3)" stroke-width="2" />
+            <path d="M40 160 Q 200 40, 360 140 T 560 60" stroke="rgba(255,255,255,0.22)" stroke-width="2" fill="none" />
+            <circle cx="200" cy="85" r="5" fill="#F2B84B" />
+            <circle cx="360" cy="140" r="6" fill="#FFFFFF" />
+            <circle cx="480" cy="100" r="8" fill="#F2B84B" />
+          </svg>
+        `;
+      case 'wellness':
+        return `
+          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mesh-well-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A1B2C" />
+                <stop offset="0.5" stop-color="#E85D75" />
+                <stop offset="1" stop-color="#F43F5E" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="240" fill="url(#mesh-well-grad)" />
+            <!-- Pulse Frequency Wave -->
+            <path d="M30 140 L180 140 L210 70 L240 190 L270 110 L300 140 L570 140" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="210" cy="70" r="6" fill="#FFFFFF" />
+            <circle cx="240" cy="190" r="5" fill="#F2B84B" />
+            <circle cx="270" cy="110" r="6" fill="#90CDF4" />
+          </svg>
+        `;
+      case 'townhall':
+      default:
+        return `
+          <svg class="poster-svg-mesh" viewBox="0 0 600 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="mesh-town-grad" x1="0" y1="0" x2="600" y2="240" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#071626" />
+                <stop offset="0.6" stop-color="#102A43" />
+                <stop offset="1" stop-color="#145DA0" />
+              </linearGradient>
+            </defs>
+            <rect width="600" height="240" fill="url(#mesh-town-grad)" />
+            <!-- Spotlight Arc Lines -->
+            <path d="M60 220 L300 30 L540 220" stroke="rgba(242, 184, 75, 0.28)" stroke-width="2" />
+            <circle cx="300" cy="30" r="8" fill="#F2B84B" />
+            <circle cx="180" cy="125" r="5" fill="#90CDF4" />
+            <circle cx="420" cy="125" r="5" fill="#FFFFFF" />
+          </svg>
+        `;
+    }
+  }
+
+  /**
+   * Editorial Featured Showcase (Dominant 50% Poster + 3 Supporting Cards)
+   */
+  function initFeaturedEditorialShowcase() {
     const container = document.getElementById('featured-cards-grid');
     if (!container) return;
 
@@ -274,43 +430,42 @@
       return;
     }
 
-    // 1 Primary (first item) and up to 3 Secondary items
     const primary = featuredList[0];
     const secondaries = featuredList.slice(1, 4);
 
     const primCat = getCategoryMeta(primary.category);
     const primStart = new Date(primary.start);
-    const primDateStr = primStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+    const primDayNum = primStart.getDate();
+    const primMonthStr = primStart.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
     const primTimeStr = primary.allDay ? 'All Day' : primStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const primSvgArtwork = getCategorySvgArtwork(primary.category);
 
     let html = `
-      <!-- Primary Featured Card (50% area) -->
-      <div class="featured-card-primary">
-        <div class="featured-primary-visual">
-          <div class="featured-primary-visual-pattern"></div>
-          <div class="featured-primary-visual-icon">
-            <i data-lucide="${primCat.icon || 'sparkles'}" style="width: 28px; height: 28px;" aria-hidden="true"></i>
-          </div>
+      <!-- 50% Dominant Featured Poster Card -->
+      <div class="featured-poster-card" style="--poster-cat-bg: ${primCat.bg}; --poster-cat-color: ${primCat.color}; --poster-cat-border: ${primCat.border};">
+        <div class="featured-poster-artwork">
+          ${primSvgArtwork}
         </div>
 
-        <div class="featured-primary-body">
-          <div class="featured-primary-top">
-            <span class="featured-pill-tag" style="background: ${primCat.bg}; color: ${primCat.color}; border: 1px solid ${primCat.border};">
-              <i data-lucide="${primCat.icon}" style="width: 11px; height: 11px;"></i>
+        <div class="featured-poster-body">
+          <div class="featured-poster-top">
+            <span class="featured-poster-cat">
+              <i data-lucide="${primCat.icon}" style="width: 12px; height: 12px;"></i>
               ${primCat.name}
             </span>
-            <span class="featured-date-pill">
-              <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--color-blue);"></i>
-              ${primDateStr} • ${primTimeStr}
+            <span class="featured-poster-date-badge">
+              <i data-lucide="calendar" style="width: 13px; height: 13px; color: var(--color-amber);"></i>
+              ${primDayNum} ${primMonthStr} • ${primTimeStr}
             </span>
           </div>
 
-          <h3 class="featured-primary-title">${escapeHtml(primary.title)}</h3>
-          <p class="featured-primary-desc">${escapeHtml(primary.description)}</p>
+          <h3 class="featured-poster-title">${escapeHtml(primary.title)}</h3>
+          <p class="featured-poster-desc">${escapeHtml(primary.description)}</p>
 
-          <div class="featured-primary-footer">
-            <div class="featured-meta-compact">
+          <div class="featured-poster-footer">
+            <div class="featured-poster-meta">
               <span><i data-lucide="map-pin" style="width: 13px; height: 13px; display: inline; margin-right: 3px;"></i> ${escapeHtml(primary.location || 'Virtual')}</span>
+              <span><i data-lucide="user" style="width: 13px; height: 13px; display: inline; margin-right: 3px;"></i> ${escapeHtml(primary.instructor || 'Aptara')}</span>
             </div>
             <button class="btn-card-action btn-card-primary" onclick="window.AptaraPulse.openModal('${primary.id}')">
               <span>View Details</span>
@@ -320,14 +475,15 @@
         </div>
       </div>
 
-      <!-- Secondary Featured Stack (3 balanced sub-cards) -->
+      <!-- Secondary Supporting Cards Stack (3 items) -->
       <div class="featured-secondary-stack">
     `;
 
     secondaries.forEach(sec => {
       const cat = getCategoryMeta(sec.category);
       const start = new Date(sec.start);
-      const dateStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dayNum = start.getDate();
+      const monthStr = start.toLocaleDateString('en-US', { month: 'short' });
 
       html += `
         <div class="featured-card-secondary" style="--cat-accent: ${cat.border};">
@@ -337,7 +493,7 @@
                 <i data-lucide="${cat.icon}" style="width: 10px; height: 10px;"></i>
                 ${cat.name}
               </span>
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--color-text-muted);">${dateStr}</span>
+              <span style="font-size: 0.775rem; font-weight: 800; color: var(--color-blue);">${dayNum} ${monthStr}</span>
             </div>
             <h4 class="featured-sec-title" title="${escapeHtml(sec.title)}">${escapeHtml(sec.title)}</h4>
             <p class="featured-sec-desc">${escapeHtml(sec.description)}</p>
@@ -397,7 +553,7 @@
   }
 
   /**
-   * Category Filter Chips Initialization in Horizontal Toolbar
+   * Category Filter Chips in Horizontal Toolbar
    */
   function initCategoryFilters() {
     const container = document.getElementById('category-filters-container');
@@ -503,6 +659,8 @@
       if (clearSearchBtn) clearSearchBtn.style.display = 'none';
       if (upcomingBtn) upcomingBtn.setAttribute('aria-pressed', 'false');
 
+      document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-stat-filter'));
+
       updateCategoryChipUI();
       filterEvents();
     };
@@ -518,24 +676,20 @@
     const allEvents = calendarData.events || [];
     let filtered = [...allEvents];
 
-    // 1. Search Query Filter via Fuse.js
     if (searchQuery && fuseInstance) {
       const results = fuseInstance.search(searchQuery);
       filtered = results.map(r => r.item);
     }
 
-    // 2. Category Filter
     if (!selectedCategories.has('all')) {
       filtered = filtered.filter(e => selectedCategories.has(e.category));
     }
 
-    // 3. Upcoming Only Filter
     if (isUpcomingOnly) {
       const refDate = new Date('2026-09-04T00:00:00');
       filtered = filtered.filter(e => new Date(e.start) >= refDate);
     }
 
-    // Update Result Counter & Clear All Visibility
     const counterEl = document.getElementById('search-result-counter');
     const clearBtn = document.getElementById('btn-clear-filters');
     const isFiltered = !selectedCategories.has('all') || isUpcomingOnly || Boolean(searchQuery);
@@ -547,13 +701,11 @@
       clearBtn.style.display = isFiltered ? 'inline-flex' : 'none';
     }
 
-    // Update Calendar Events
     if (calendarInstance) {
       calendarInstance.removeAllEvents();
       calendarInstance.addEventSource(mapEventsToFullCalendar(filtered));
     }
 
-    // Update Empty State
     const emptyState = document.getElementById('calendar-empty-state');
     const fcMount = document.getElementById('fullcalendar-mount');
     if (emptyState && fcMount) {
@@ -566,8 +718,8 @@
       }
     }
 
-    // Update Timeline Agenda
     renderTimelineAgenda(filtered);
+    initTimelineScrollObserver();
   }
 
   /**
@@ -589,6 +741,7 @@
           categoryColor: cat.color,
           categoryBg: cat.bg,
           categoryBorder: cat.border,
+          categoryIcon: cat.icon,
           location: e.location,
           instructor: e.instructor,
           description: e.description
@@ -598,7 +751,7 @@
   }
 
   /**
-   * FullCalendar Initialization with 2-Line Event Pills
+   * FullCalendar Initialization with Category Icons & Custom 2-Line Pills
    */
   function initCalendarView() {
     const mountEl = document.getElementById('fullcalendar-mount');
@@ -627,7 +780,6 @@
         openEventModal(info.event.id);
       },
       eventContent: (arg) => {
-        // Custom 2-Line Event Pill for Grid View
         if (arg.view.type === 'dayGridMonth') {
           const catBorder = arg.event.extendedProps.categoryBorder || '#145DA0';
           const catBg = arg.event.extendedProps.categoryBg || '#EDF5FC';
@@ -668,7 +820,7 @@
   }
 
   /**
-   * Full-Width Chronological Timeline Agenda
+   * Full-Width Chronological Pulse Timeline Agenda
    */
   function initTimelineAgenda() {
     renderTimelineAgenda(calendarData.events || []);
@@ -692,10 +844,8 @@
       return;
     }
 
-    // Sort chronologically
     const sorted = [...eventList].sort((a, b) => new Date(a.start) - new Date(b.start));
 
-    // Group by Date string
     const groups = {};
     sorted.forEach(evt => {
       const dateKey = evt.start.split('T')[0];
@@ -712,7 +862,7 @@
       const evtsInDate = groups[dateKey];
 
       html += `
-        <div class="timeline-group">
+        <div class="timeline-group is-visible" data-date="${dateKey}">
           <div class="timeline-date-block">
             <div class="timeline-date-day">${dayNum}</div>
             <div class="timeline-date-month">${monthStr} 2026</div>
@@ -765,6 +915,27 @@
 
     container.innerHTML = html;
     initLucideIcons();
+  }
+
+  /**
+   * IntersectionObserver for Progressive Timeline Axis Illumination
+   */
+  function initTimelineScrollObserver() {
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) return;
+
+    const timelineGroups = document.querySelectorAll('.timeline-group');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        }
+      });
+    }, {
+      rootMargin: '0px 0px -60px 0px',
+      threshold: 0.15
+    });
+
+    timelineGroups.forEach(group => observer.observe(group));
   }
 
   /**
@@ -1024,7 +1195,7 @@
     if (prefersReducedMotion()) return;
     if (window.Motion && typeof window.Motion.animate === 'function') {
       window.Motion.animate(
-        '.hero-badge, .hero-title, .hero-statement-wrap, .hero-descriptor, .hero-actions, .next-up-card',
+        '.hero-badge, .hero-title, .hero-statement-wrap, .hero-descriptor, .hero-actions, .hero-experience-counter, .next-up-card',
         { opacity: [0, 1], transform: ['translateY(14px)', 'translateY(0px)'] },
         { duration: 0.4, delay: window.Motion.stagger ? window.Motion.stagger(0.06) : 0, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' }
       );

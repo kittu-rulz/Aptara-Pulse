@@ -38,6 +38,14 @@
         phone: "Employee Support Ext: 4400"
       }
     },
+    theme: {
+      eyebrow: "SEPTEMBER 2026 EDITION",
+      tagline: "Learn. Connect. Celebrate.",
+      accent: "#145DA0",
+      secondaryAccent: "#6B4C9A",
+      motif: "connected-pulse",
+      featuredArtwork: "genai-mesh"
+    },
     categories: [
       { id: "training", name: "Training & Workshops", color: "#145DA0", bg: "#EDF5FC", border: "#145DA0", icon: "book-open" },
       { id: "engagement", name: "Employee Engagement", color: "#6B4C9A", bg: "#F5F0FA", border: "#6B4C9A", icon: "party-popper" },
